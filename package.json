@@ -9,7 +9,8 @@
 		"dev": "vite",
 		"build": "vite build",
 		"lint": "eslint .",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"migrate": "node -e \"require('dotenv').config(); const { execSync } = require('child_process'); const cmd = `mysql -h ${process.env.DB_HOST} -P ${process.env.DB_PORT} -u ${process.env.DB_USER} -p${process.env.DB_PASS} -e \\\"SOURCE db/schema.sql; SOURCE db/migrations/001_create_core_tables.sql;\\\"`; execSync(cmd, { stdio: 'inherit' });\""
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.17",

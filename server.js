@@ -1,39 +1,17 @@
-//const express = require('express');
 import express from 'express';
-// const cors = require('cors');
 import cors from 'cors';
-// const path = require('path');
-import path from 'path';
-// const fs = require('fs');
-// const { Sequelize, DataTypes } = require('sequelize');
 import { Sequelize, DataTypes } from 'sequelize';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
-//app.use(express.static(path.join(__dirname, 'public')));
-
 const { DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS } = process.env;
-
-// Setup Sequelize with MySQL database
-// const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
-// 	host: DB_HOST,
-// 	dialect: 'postgres',
-// 	dialectOptions: {
-// 		ssl: {
-// 			ca: fs.readFileSync('./certs/aiven-ca.pem', 'utf8'),
-// 			rejectUnauthorized: true,
-// 		},
-// 	},
-// 	port: DB_PORT,
-// 	logging: console.log,
-// });
 
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
 	host: DB_HOST,
@@ -42,54 +20,91 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
 	logging: console.log,
 });
 
-const users = sequelize.define(
+const Team = sequelize.define(
+	'teams',
+	{
+		id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+		name: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+		description: { type: DataTypes.TEXT, allowNull: true },
+		created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+	},
+	{ timestamps: false }
+);
+
+const User = sequelize.define(
 	'users',
 	{
-		id: {
-			type: DataTypes.NUMBER,
-			allowNull: false,
-			primaryKey: true,
-			autoIncrement: true,
-		},
-		team_id: {
-			type: DataTypes.NUMBER,
-			allowNull: true,
-		},
-		name: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		email: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		password: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		role: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		level: {
-			type: DataTypes.NUMBER,
-			allowNull: false,
-		},
-		xp: {
-			type: DataTypes.NUMBER,
-			allowNull: false,
-		},
+		id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+		team_id: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'teams', key: 'id' } },
+		name: { type: DataTypes.STRING(100), allowNull: false },
+		email: { type: DataTypes.STRING(150), allowNull: false, unique: true },
+		password_hash: { type: DataTypes.STRING(255), allowNull: false },
+		role: { type: DataTypes.ENUM('admin', 'user'), allowNull: false, defaultValue: 'user' },
+		level: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+		xp: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+		created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+		updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
 	},
-	{
-		timestamps: false,
-	}
+	{ timestamps: false }
 );
+
+const Task = sequelize.define(
+	'tasks',
+	{
+		id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+		title: { type: DataTypes.STRING(150), allowNull: false },
+		description: { type: DataTypes.TEXT, allowNull: true },
+		status: { type: DataTypes.ENUM('draft', 'published', 'archived'), allowNull: false, defaultValue: 'draft' },
+		xp_reward: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 10 },
+		due_date: { type: DataTypes.DATE, allowNull: true },
+		created_by: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
+		created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+		updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+	},
+	{ timestamps: false }
+);
+
+const TaskAssignment = sequelize.define(
+	'task_assignments',
+	{
+		id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+		task_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'tasks', key: 'id' } },
+		user_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
+		status: { type: DataTypes.ENUM('assigned', 'in_progress', 'completed'), allowNull: false, defaultValue: 'assigned' },
+		completed_at: { type: DataTypes.DATE, allowNull: true },
+	},
+	{ timestamps: false }
+);
+
+const XpEvent = sequelize.define(
+	'xp_events',
+	{
+		id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
+		user_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
+		task_id: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'tasks', key: 'id' } },
+		delta: { type: DataTypes.INTEGER, allowNull: false },
+		reason: { type: DataTypes.STRING(255), allowNull: false },
+		created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+	},
+	{ timestamps: false }
+);
+
+Team.hasMany(User, { foreignKey: 'team_id' });
+User.belongsTo(Team, { foreignKey: 'team_id' });
+User.hasMany(Task, { foreignKey: 'created_by' });
+Task.belongsTo(User, { foreignKey: 'created_by' });
+Task.hasMany(TaskAssignment, { foreignKey: 'task_id' });
+User.hasMany(TaskAssignment, { foreignKey: 'user_id' });
+TaskAssignment.belongsTo(Task, { foreignKey: 'task_id' });
+TaskAssignment.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(XpEvent, { foreignKey: 'user_id' });
+Task.hasMany(XpEvent, { foreignKey: 'task_id' });
+XpEvent.belongsTo(User, { foreignKey: 'user_id' });
+XpEvent.belongsTo(Task, { foreignKey: 'task_id' });
 
 (async () => {
 	try {
 		await sequelize.authenticate();
-		console.log('connection established');
-
 		await sequelize.sync();
 
 		const server = app.listen(PORT, () => {
@@ -105,58 +120,3 @@ const users = sequelize.define(
 		process.exit(1);
 	}
 })();
-
-// gets all notes
-// app.get('/notes', async (req, res) => {
-// 	try {
-// 		const notes = await Note.findAll();
-// 		res.json(notes);
-// 	} catch (error) {
-// 		res.status(500).json({ error: 'Error retrieving note' });
-// 	}
-// });
-
-// // Handle POST request to save new data with a unique ID
-// app.post('/notes', async (req, res) => {
-// 	try {
-// 		const { name, content } = req.body;
-// 		date = new Date().toUTCString();
-// 		const note = await Note.create({ date, name, content });
-// 		res.status(201).json(note);
-// 	} catch (error) {
-// 		res.status(500).json({ error: 'Error adding note' });
-// 	}
-// });
-
-// // Edit note
-// app.put('/notes/:id', async (req, res) => {
-// 	try {
-// 		const { name, content } = req.body;
-// 		const editedNote = await Note.update(
-// 			{ name, content },
-// 			{ where: { id: req.params.id } }
-// 		);
-// 		res.status(201).json(editedNote);
-// 	} catch (error) {
-// 		res.status(500).json({ error: 'Error editing note' });
-// 	}
-// });
-
-// // delete note
-// app.delete('/notes/:id', async (req, res) => {
-// 	try {
-// 		const deletedNote = await Note.destroy({ where: { id: req.params.id } });
-// 		res.status(201).json(deletedNote);
-// 	} catch (error) {
-// 		res.status(500).json({ error: 'Error editing note' });
-// 	}
-// });
-
-// // catch routes not coded
-// app.all('/*', (req, res) => {
-// 	res.status(404).send('Route not found');
-// });
-
-// // sudo mysql -u <username> -p -h <host>
-
-// export NODE_EXTRA_CA_CERTS=$(pwd)/certs/aiven-ca.pem
