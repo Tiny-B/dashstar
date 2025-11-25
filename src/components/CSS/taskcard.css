@@ -1,0 +1,62 @@
+.task-card {
+	position: relative;
+	overflow-x: visible;
+	margin: 20px auto;
+	padding: 10px;
+	width: 90%;
+	height: 180px;
+	background-color: rgb(49, 0, 37);
+	border: 2px solid rgb(76, 0, 57);
+	border-radius: 20px;
+	box-shadow: 10px 10px 20px rgb(5, 0, 4);
+	will-change: transform;
+	transition: transform 0.25s ease, border 0.25s ease, box-shadow 0.25s ease;
+}
+.task-card:hover {
+	width: 400px;
+	cursor: pointer;
+	transform: scale(1.4);
+	border: 4px solid rgb(98, 44, 114);
+	z-index: 4;
+	overflow-x: visible;
+}
+
+.task-title {
+	font-size: 1.1rem;
+	padding-bottom: 5px;
+	border-bottom: 2px solid rgb(76, 0, 57);
+}
+
+.task-desc {
+	width: 100%;
+	height: 50%;
+	padding-top: 5px;
+	border-bottom: 2px solid rgb(76, 0, 57);
+}
+
+.task-buttons {
+	height: 50px;
+	display: flex;
+	gap: 30px;
+	justify-content: center;
+	align-items: center;
+}
+
+.btn {
+	width: 100px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+}
+
+.assign-button {
+	background-color: rgb(56, 14, 134);
+}
+
+.complete-button {
+	background-color: rgb(14, 134, 94);
+}
+
+.list-title {
+	font-size: 1.7rem;
+}
