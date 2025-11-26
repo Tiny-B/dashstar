@@ -6,7 +6,7 @@ import './App.css';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-//import Admin from './pages/Admin';
+import Admin from './pages/Admin';
 
 function App() {
 	return (
@@ -24,10 +24,10 @@ function App() {
 					path='/dashboard'
 					element={<Dashboard />}
 				/>
-				{/* <Route
+				<Route
 					path='/admin'
 					element={<Admin />}
-				/> */}
+				/>
 			</Routes>
 		</BrowserRouter>
 	);

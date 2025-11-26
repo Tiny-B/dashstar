@@ -1,0 +1,100 @@
+/* Main container */
+.admin-container {
+  padding: 40px;
+  background: #0f0117; /* same dark background as profile */
+  min-height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Page Title */
+.admin-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: white;
+  text-align: center;
+}
+
+/* Responsive grid */
+.admin-grid {
+  width: 100%;
+  max-width: 1300px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 25px;
+}
+
+/* Card */
+.admin-card {
+  background: white;
+  color: black;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid #ddd;
+}
+
+/* Card title */
+.admin-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Form layout */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+  width: 100%;
+  background: #f8f8f8;
+}
+
+.admin-form textarea {
+  resize: vertical;
+}
+
+/* Buttons */
+.btn-primary {
+  background: #050816;
+  padding: 12px;
+  border-radius: 10px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #03040c;
+}
+
+.btn-secondary {
+  background: #dcdcdc;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.admin-button-row {
+  display: flex;
+  gap: 12px;
+}
