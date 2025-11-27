@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f5f6fa;
+    background: #0f0117;
   }
   
   .profile-container {
@@ -50,7 +50,7 @@ body {
   .profile-header-text h2 {
     margin: 0;
     font-size: 22px;
-    color: #111827;
+    color: #fcfcfe;
   }
   
   .profile-header-text p {

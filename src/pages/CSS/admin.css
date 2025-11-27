@@ -1,7 +1,7 @@
 /* Main container */
 .admin-container {
   padding: 40px;
-  background: #0f0117; /* same dark background as profile */
+  background: #0f0117;
   min-height: 100vh;
   color: white;
   display: flex;
