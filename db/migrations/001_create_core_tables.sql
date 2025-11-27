@@ -37,9 +37,10 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS tasks (
   id INT AUTO_INCREMENT PRIMARY KEY,
   workspace_id INT NOT NULL,
+  team_id INT NULL,
   title VARCHAR(150) NOT NULL,
   description TEXT,
-  status ENUM('draft','published','archived') NOT NULL DEFAULT 'draft',
+  status ENUM('open','published','inprogress','complete') NOT NULL DEFAULT 'open',
   xp_reward INT NOT NULL DEFAULT 10,
   due_date DATETIME NULL,
   created_by INT NOT NULL,
@@ -130,6 +131,8 @@ CREATE TABLE IF NOT EXISTS workspaces (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   owner_user_id INT NOT NULL,
+  join_code VARCHAR(64) NULL,
+  join_code_expires_at DATETIME NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_workspaces_owner FOREIGN KEY (owner_user_id) REFERENCES users(id)
@@ -155,9 +158,16 @@ ALTER TABLE teams
 
 ALTER TABLE tasks
   ADD CONSTRAINT fk_tasks_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id);
+ALTER TABLE tasks
+  ADD CONSTRAINT fk_tasks_team FOREIGN KEY (team_id) REFERENCES teams(id);
+ALTER TABLE tasks
+  ADD INDEX idx_tasks_workspace_team (workspace_id, team_id);
 
 ALTER TABLE schedules
   ADD CONSTRAINT fk_schedules_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id);
 
 ALTER TABLE messages
   ADD CONSTRAINT fk_messages_workspace FOREIGN KEY (workspace_id) REFERENCES workspaces(id);
+
+ALTER TABLE workspaces
+  ADD UNIQUE INDEX uniq_workspaces_join_code (join_code);

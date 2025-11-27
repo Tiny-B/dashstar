@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { Router } from 'express';
+import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
@@ -17,14 +18,23 @@ function isStrongPassword(pwd) {
 	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(pwd);
 }
 
-router.post('/register', async (req, res) => {
-	const { username, name, email, password } = req.body;
-	if (!username || !name || !email || !password) {
-		return res.status(400).json({ message: 'Missing required fields' });
-	}
-	if (!isStrongPassword(password)) {
-		return res.status(400).json({ message: 'Password must be at least 8 characters with upper, lower, and number' });
-	}
+const validate = (req, res, next) => {
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
+	return next();
+};
+
+router.post(
+	'/register',
+	[
+		body('username').trim().notEmpty(),
+		body('name').trim().notEmpty(),
+		body('email').isEmail(),
+		body('password').custom(val => isStrongPassword(val)),
+	],
+	validate,
+	async (req, res) => {
+		const { username, name, email, password } = req.body;
 	try {
 		const existing = await User.findOne({ where: { email } });
 		if (existing) return res.status(409).json({ message: 'Email already in use' });
@@ -37,11 +47,15 @@ router.post('/register', async (req, res) => {
 		console.error(err);
 		return res.status(500).json({ message: 'Registration failed' });
 	}
-});
+	}
+);
 
-router.post('/login', async (req, res) => {
-	const { email, password } = req.body;
-	if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+router.post(
+	'/login',
+	[body('email').isEmail(), body('password').notEmpty()],
+	validate,
+	async (req, res) => {
+		const { email, password } = req.body;
 	try {
 		const user = await User.findOne({ where: { email } });
 		if (!user) return res.status(401).json({ message: 'Invalid credentials' });
@@ -53,7 +67,8 @@ router.post('/login', async (req, res) => {
 		console.error(err);
 		return res.status(500).json({ message: 'Login failed' });
 	}
-});
+	}
+);
 
 router.post('/change-password', authenticate, async (req, res) => {
 	const { currentPassword, newPassword } = req.body;

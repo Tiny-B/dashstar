@@ -29,6 +29,8 @@ User.belongsTo(Team, { foreignKey: 'team_id' });
 
 User.hasMany(Task, { foreignKey: 'created_by' });
 Task.belongsTo(User, { foreignKey: 'created_by' });
+Team.hasMany(Task, { foreignKey: 'team_id' });
+Task.belongsTo(Team, { foreignKey: 'team_id' });
 
 Task.hasMany(TaskAssignment, { foreignKey: 'task_id' });
 User.hasMany(TaskAssignment, { foreignKey: 'user_id' });
