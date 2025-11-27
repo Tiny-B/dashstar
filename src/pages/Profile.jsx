@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./CSS/profile.css";
 
 function Profile() {
-  // === STATE ===
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -11,24 +10,22 @@ function Profile() {
   const [city, setCity] = useState("");
   const [timezone, setTimezone] = useState("");
   const [theme, setTheme] = useState("");
-  const [role, setRole] = useState("User"); // default
+  const [role, setRole] = useState("User");
 
-  // Generate avatar initials from full name
   const initials = fullName
     ? fullName
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
-    : "U"; // fallback
+    : "U";
 
   return (
     <div className="profile-container">
 
-      {/* Top Header */}
+      {/* HEADER */}
       <div className="profile-header">
         <div className="profile-header-left">
-
           <div className="profile-avatar">{initials}</div>
 
           <div className="profile-header-text">
@@ -48,69 +45,92 @@ function Profile() {
         </div>
       </div>
 
-      {/* Page Title */}
-      <h1>User Profile</h1>
+      {/* REMOVED PAGE TITLE */}
 
-      {/* ==== PERSONAL DETAILS CARD ==== */}
+      {/* PERSONAL DETAILS */}
       <div className="profile-section profile-personal">
         <h2>Personal Details</h2>
 
         <form className="profile-form">
-          <label>Full Name</label>
+          <label className="label-full">Full Name</label>
           <input
+            className="input-full"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
 
-          <label>Username</label>
+          <label className="label-username">Username</label>
           <input
+            className="input-username"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
 
-          <label>Email</label>
+          <label className="label-email">Email</label>
           <input
+            className="input-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <label>Phone</label>
+          <label className="label-phone">Phone</label>
           <input
+            className="input-phone"
             type="text"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
 
-          <label>Country</label>
-          <input
-            type="text"
+          <label className="label-country">Country</label>
+          <select
+            className="input-country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-          />
+          >
+            <option value="">Select Country</option>
+            <option value="uk">United Kingdom</option>
+            <option value="us">United States</option>
+            <option value="ca">Canada</option>
+            <option value="au">Australia</option>
+            <option value="de">Germany</option>
+          </select>
 
-          <label>City</label>
+          <label className="label-city">City</label>
           <input
+            className="input-city"
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
           />
 
-          <label>Timezone</label>
-          <input
-            type="text"
+          <label className="label-timezone">Timezone</label>
+          <select
+            className="input-timezone"
             value={timezone}
             onChange={(e) => setTimezone(e.target.value)}
-          />
+          >
+            <option value="">Select Timezone</option>
+            <option value="Europe/London">GMT / Europe-London</option>
+            <option value="Europe/Paris">CET / Europe-Paris</option>
+            <option value="America/New_York">EST / New York</option>
+            <option value="America/Los_Angeles">PST / Los Angeles</option>
+            <option value="Asia/Kolkata">IST / India</option>
+          </select>
 
-          <label>Theme</label>
-          <input
-            type="text"
+          <label className="label-theme">Theme</label>
+          <select
+            className="input-theme"
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
-          />
+          >
+            <option value="">Select Theme</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="system">System Default</option>
+          </select>
 
           <button type="button" className="save-btn">
             Save Changes
@@ -118,7 +138,7 @@ function Profile() {
         </form>
       </div>
 
-      {/* === ACHIEVEMENTS === */}
+      {/* ACHIEVEMENTS */}
       <div className="profile-section profile-achievements">
         <h2>Achievements</h2>
 
@@ -131,14 +151,14 @@ function Profile() {
         </div>
       </div>
 
-      {/* === TEAM DETAILS === */}
+      {/* TEAM DETAILS */}
       <div className="profile-section profile-team">
         <h2>Team Details</h2>
 
-        <p>Team: </p>
+        <p>Team:</p>
         <p>Role: {role}</p>
-        <p>Manager: </p>
-        <p>Team Members: </p>
+        <p>Manager:</p>
+        <p>Team Members:</p>
       </div>
     </div>
   );

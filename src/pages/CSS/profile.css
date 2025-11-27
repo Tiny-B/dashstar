@@ -1,3 +1,9 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+  }
+  
   .profile-container {
     max-width: 1200px;
     margin: 32px auto;
