@@ -25,20 +25,19 @@ export default function Dashboard() {
 		// populate the task lists on load
 		// only have and only will ever have 3 lists, sorry for the magic number :P
 		for (let i = 0; i < 3; i++) {
-			let listName = '';
+			let status = '';
 			if (i === 0) {
-				listName = 'task';
+				status = 'open';
 			} else if (i === 1) {
-				listName = 'inprogress';
+				status = 'inprogress';
 			} else {
-				listName = 'complete';
+				status = 'complete';
 			}
 
-			const tempList = tasks.filter(task => task.status === listName);
-			console.log('tempList:', tempList);
+			const tempList = tasks.filter(task => task.status === status);
 
 			if (tempList.length !== 0) {
-				if (tempList[0].status === 'task') {
+				if (tempList[0].status === 'open') {
 					setTaskList(tempList);
 				} else if (tempList[0].status === 'inprogress') {
 					setInprogressList(tempList);

@@ -3,14 +3,14 @@ import CardButton from './CardButton';
 import './CSS/taskcard.css';
 
 export default function TaskCard({ task_id, title, desc }) {
-	const [listForCard, setListForCard] = useState('');
+	const [statusForCard, setStatusForCard] = useState('');
 
 	useEffect(() => {
-		console.log('uplift callback:', listForCard);
-	}, [listForCard]);
+		console.log('uplift callback:', statusForCard);
+	}, [statusForCard]);
 
-	const cardListSetter = list => {
-		setListForCard(list);
+	const cardStatusSetter = status => {
+		setStatusForCard(status);
 	};
 
 	return (
@@ -20,7 +20,7 @@ export default function TaskCard({ task_id, title, desc }) {
 			<div className='task-buttons'>
 				<CardButton
 					task_id={task_id}
-					listSetter={cardListSetter}
+					statusSetter={cardStatusSetter}
 				/>
 			</div>
 		</div>

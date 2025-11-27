@@ -7,7 +7,7 @@
 		"desc": "Quick fix please!",
 		"date_created": "25/12/25",
 		"date_due": "25/12/25",
-		"status": "task",
+		"status": "open",
 		"task_xp": "5"
 	},
 	{
@@ -18,7 +18,7 @@
 		"desc": "Quick fix please!",
 		"date_created": "25/12/25",
 		"date_due": "25/12/25",
-		"status": "task",
+		"status": "open",
 		"task_xp": "5"
 	},
 	{
@@ -29,7 +29,7 @@
 		"desc": "Quick fix please!",
 		"date_created": "25/12/25",
 		"date_due": "25/12/25",
-		"status": "task",
+		"status": "open",
 		"task_xp": "5"
 	},
 	{
@@ -40,7 +40,7 @@
 		"desc": "Quick fix please!",
 		"date_created": "25/12/25",
 		"date_due": "25/12/25",
-		"status": "task",
+		"status": "open",
 		"task_xp": "5"
 	},
 	{

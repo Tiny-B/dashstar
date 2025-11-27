@@ -3,22 +3,22 @@ import { useEffect, useState } from 'react';
 import tasks from '../../data/tasks.json';
 JSON.stringify(tasks);
 
-export default function CardButton({ task_id, listSetter }) {
-	const [list, setList] = useState('task');
+export default function CardButton({ task_id, statusSetter }) {
+	const [status, setStatus] = useState('open');
 
 	useEffect(() => {
-		listSetter(list);
-		console.log('list after state change (via useEffect):', list);
+		statusSetter(status);
+		console.log('list after state change (via useEffect):', status);
 
 		const newData = tasks.map(element => {
 			if (element.id === task_id) {
-				return { ...element, list: list };
+				return { ...element, status: status };
 			}
 			return element;
 		});
 		console.log('newData:', newData);
 		console.log('taskData', tasks);
-	}, [list, listSetter]);
+	}, [status, statusSetter]);
 
 	const ButtonStyle = {
 		assign: {
@@ -30,21 +30,21 @@ export default function CardButton({ task_id, listSetter }) {
 	};
 
 	const handleClick = () => {
-		console.log('list before setState:', list);
-		setList(prev => (prev === 'task' ? 'inprogress' : 'complete'));
+		console.log('status before setState:', status);
+		setStatus(prev => (prev === 'open' ? 'inprogress' : 'complete'));
 	};
 
-	if (list === 'complete') return null;
+	if (status === 'complete') return null;
 
 	return (
 		<div>
-			{list !== 'complete' ? (
+			{status !== 'complete' ? (
 				<button
 					className='btn'
-					style={list === 'task' ? ButtonStyle.assign : ButtonStyle.complete}
+					style={status === 'open' ? ButtonStyle.assign : ButtonStyle.complete}
 					onClick={handleClick}
 				>
-					{list === 'task' ? 'Assign' : 'complete'}
+					{status === 'open' ? 'Assign' : 'Complete'}
 				</button>
 			) : (
 				<></>
