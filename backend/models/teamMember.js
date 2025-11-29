@@ -1,30 +1,24 @@
 export default (sequelize, DataTypes) => {
 	return sequelize.define(
-		'Workspace',
+		'TeamMember',
 		{
-			id: {
+			team_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				primaryKey: true,
-				autoIncrement: true,
+				references: { model: 'Teams', key: 'id' },
+				onDelete: 'CASCADE',
 			},
-			code: {
-				type: DataTypes.STRING(64),
-				unique: true,
-				allowNull: false,
-			},
-			admin_user_id: {
+			user_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
-				references: {
-					model: 'Users',
-					key: 'id',
-				},
-				onDelete: 'RESTRICT',
+				primaryKey: true,
+				references: { model: 'Users', key: 'id' },
+				onDelete: 'CASCADE',
 			},
 		},
 		{
-			tableName: 'Workspaces',
+			tableName: 'TeamMembers',
 			timestamps: true,
 			underscored: true,
 		}

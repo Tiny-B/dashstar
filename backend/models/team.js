@@ -1,15 +1,45 @@
-export default (sequelize, DataTypes) =>
-	sequelize.define(
-		'teams',
+export default (sequelize, DataTypes) => {
+	return sequelize.define(
+		'Team',
 		{
-			id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
-			workspace_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'workspaces', key: 'id' } },
-			name: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-			description: { type: DataTypes.TEXT, allowNull: true },
-			manager_name: { type: DataTypes.STRING(150), allowNull: true },
-			created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-			updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-			deleted_at: { type: DataTypes.DATE, allowNull: true },
+			id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				primaryKey: true,
+				autoIncrement: true,
+			},
+			workspace_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Workspaces',
+					key: 'id',
+				},
+				onDelete: 'CASCADE',
+			},
+			name: {
+				type: DataTypes.STRING(255),
+				allowNull: false,
+			},
+			admin_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'RESTRICT',
+			},
 		},
-		{ timestamps: false }
+		{
+			tableName: 'Teams',
+			timestamps: true,
+			underscored: true,
+			indexes: [
+				{
+					unique: true,
+					fields: ['workspace_id', 'name'],
+				},
+			],
+		}
 	);
+};

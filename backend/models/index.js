@@ -1,91 +1,143 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import TeamModel from './team.js';
+import TeamMemberModel from './teamMember.js';
 import UserModel from './user.js';
 import TaskModel from './task.js';
-import TaskAssignmentModel from './taskAssignment.js';
-import XpEventModel from './xpEvent.js';
-import BadgeModel from './badge.js';
-import UserBadgeModel from './userBadge.js';
 import ScheduleModel from './schedule.js';
 import MessageModel from './message.js';
 import WorkspaceModel from './workspace.js';
-import WorkspaceUserModel from './workspaceUser.js';
+import UserWorkspaceModel from './userWorkspace.js';
 
 const Team = TeamModel(sequelize, DataTypes);
+const TeamMember = TeamMemberModel(sequelize, DataTypes);
 const User = UserModel(sequelize, DataTypes);
 const Task = TaskModel(sequelize, DataTypes);
-const TaskAssignment = TaskAssignmentModel(sequelize, DataTypes);
-const XpEvent = XpEventModel(sequelize, DataTypes);
-const Badge = BadgeModel(sequelize, DataTypes);
-const UserBadge = UserBadgeModel(sequelize, DataTypes);
 const Schedule = ScheduleModel(sequelize, DataTypes);
 const Message = MessageModel(sequelize, DataTypes);
 const Workspace = WorkspaceModel(sequelize, DataTypes);
-const WorkspaceUser = WorkspaceUserModel(sequelize, DataTypes);
+const UserWorkspace = UserWorkspaceModel(sequelize, DataTypes);
 
-Team.hasMany(User, { foreignKey: 'team_id' });
-User.belongsTo(Team, { foreignKey: 'team_id' });
+// ====================== USER =============================
+// A user can belong to many workspaces (member or admin)
+User.belongsToMany(Workspace, {
+	through: UserWorkspace,
+	foreignKey: 'user_id',
+	otherKey: 'workspace_id',
+});
 
-User.hasMany(Task, { foreignKey: 'created_by' });
-Task.belongsTo(User, { foreignKey: 'created_by' });
-Team.hasMany(Task, { foreignKey: 'team_id' });
-Task.belongsTo(Team, { foreignKey: 'team_id' });
+// Workspaces where the user is the *owner* (admin_user_id)
+User.hasMany(Workspace, {
+	foreignKey: 'admin_user_id',
+	as: 'ownedWorkspaces',
+});
 
-Task.hasMany(TaskAssignment, { foreignKey: 'task_id' });
-User.hasMany(TaskAssignment, { foreignKey: 'user_id' });
-TaskAssignment.belongsTo(Task, { foreignKey: 'task_id' });
-TaskAssignment.belongsTo(User, { foreignKey: 'user_id' });
+// Teams that the user created (team admin)
+User.hasMany(Team, {
+	foreignKey: 'admin_user_id',
+	as: 'adminTeams',
+});
 
-User.hasMany(XpEvent, { foreignKey: 'user_id' });
-Task.hasMany(XpEvent, { foreignKey: 'task_id' });
-XpEvent.belongsTo(User, { foreignKey: 'user_id' });
-XpEvent.belongsTo(Task, { foreignKey: 'task_id' });
+// Teams the user is a member of (through TeamMembers)
+User.belongsToMany(Team, {
+	through: TeamMember,
+	foreignKey: 'user_id',
+	otherKey: 'team_id',
+});
 
-User.hasMany(UserBadge, { foreignKey: 'user_id' });
-UserBadge.belongsTo(User, { foreignKey: 'user_id' });
-Badge.hasMany(UserBadge, { foreignKey: 'badge_id' });
-UserBadge.belongsTo(Badge, { foreignKey: 'badge_id' });
+// Tasks created by the user (admin only)
+User.hasMany(Task, {
+	foreignKey: 'created_by_user_id',
+	as: 'createdTasks',
+});
 
-Team.hasMany(Schedule, { foreignKey: 'target_team_id', as: 'teamSchedules' });
-Schedule.belongsTo(Team, { foreignKey: 'target_team_id', as: 'targetTeam' });
-User.hasMany(Schedule, { foreignKey: 'target_user_id', as: 'userSchedules' });
-Schedule.belongsTo(User, { foreignKey: 'target_user_id', as: 'targetUser' });
-User.hasMany(Schedule, { foreignKey: 'created_by', as: 'authoredSchedules' });
-Schedule.belongsTo(User, { foreignKey: 'created_by', as: 'scheduleCreator' });
+// Schedules created by the user
+User.hasMany(Schedule, {
+	foreignKey: 'created_by_user_id',
+	as: 'createdSchedules',
+});
 
-User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' });
-Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
-User.hasMany(Message, { foreignKey: 'recipient_user_id', as: 'receivedMessages' });
-Message.belongsTo(User, { foreignKey: 'recipient_user_id', as: 'recipientUser' });
-Team.hasMany(Message, { foreignKey: 'recipient_team_id', as: 'teamMessages' });
-Message.belongsTo(Team, { foreignKey: 'recipient_team_id', as: 'recipientTeam' });
-Workspace.hasMany(Team, { foreignKey: 'workspace_id' });
-Team.belongsTo(Workspace, { foreignKey: 'workspace_id' });
-Workspace.hasMany(Task, { foreignKey: 'workspace_id' });
-Task.belongsTo(Workspace, { foreignKey: 'workspace_id' });
-Workspace.hasMany(Schedule, { foreignKey: 'workspace_id' });
-Schedule.belongsTo(Workspace, { foreignKey: 'workspace_id' });
-Workspace.hasMany(Message, { foreignKey: 'workspace_id' });
-Message.belongsTo(Workspace, { foreignKey: 'workspace_id' });
-Workspace.hasMany(WorkspaceUser, { foreignKey: 'workspace_id', as: 'memberships' });
-WorkspaceUser.belongsTo(Workspace, { foreignKey: 'workspace_id', as: 'workspace' });
-User.hasMany(WorkspaceUser, { foreignKey: 'user_id', as: 'workspaceMemberships' });
-WorkspaceUser.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-User.belongsToMany(Workspace, { through: WorkspaceUser, foreignKey: 'user_id', otherKey: 'workspace_id', as: 'workspaces' });
-Workspace.belongsToMany(User, { through: WorkspaceUser, foreignKey: 'workspace_id', otherKey: 'user_id', as: 'users' });
+// Messages created by the user
+User.hasMany(Message, {
+	foreignKey: 'created_by_user_id',
+	as: 'createdMessages',
+});
+
+// ===================Workspace ==================================
+// The owner (admin) of the workspace
+Workspace.belongsTo(User, {
+	foreignKey: 'admin_user_id',
+	as: 'admin',
+});
+
+// Users that belong to the workspace (member or admin)
+Workspace.belongsToMany(User, {
+	through: UserWorkspace,
+	foreignKey: 'workspace_id',
+	otherKey: 'user_id',
+});
+
+// Teams that live inside the workspace
+Workspace.hasMany(Team, {
+	foreignKey: 'workspace_id',
+	as: 'teams',
+});
+
+//=================== Team ========================
+// Workspace that contains this team
+Team.belongsTo(Workspace, {
+	foreignKey: 'workspace_id',
+	as: 'workspace',
+});
+
+// The user who created / leads the team
+Team.belongsTo(User, {
+	foreignKey: 'admin_user_id',
+	as: 'admin',
+});
+
+// Users belonging to the team (many‑to‑many)
+Team.belongsToMany(User, {
+	through: TeamMember,
+	foreignKey: 'team_id',
+	otherKey: 'user_id',
+	as: 'members',
+});
+
+// Tasks, Schedules, Messages that belong to this team
+Team.hasMany(Task, { foreignKey: 'team_id', as: 'tasks' });
+Team.hasMany(Schedule, { foreignKey: 'team_id', as: 'schedules' });
+Team.hasMany(Message, { foreignKey: 'team_id', as: 'messages' });
+
+//=========================== Task =====================
+Task.belongsTo(Team, { foreignKey: 'team_id', as: 'team' });
+Task.belongsTo(User, {
+	foreignKey: 'created_by_user_id',
+	as: 'creator',
+});
+
+//=========================== Schedule ========================
+Schedule.belongsTo(Team, { foreignKey: 'team_id', as: 'team' });
+Schedule.belongsTo(User, {
+	foreignKey: 'created_by_user_id',
+	as: 'creator',
+});
+
+// ============================= Messages ========================
+Message.belongsTo(Team, { foreignKey: 'team_id', as: 'team' });
+Message.belongsTo(User, {
+	foreignKey: 'created_by_user_id',
+	as: 'author',
+});
 
 export {
 	sequelize,
 	Team,
+	TeamMember,
 	User,
 	Task,
-	TaskAssignment,
-	XpEvent,
-	Badge,
-	UserBadge,
 	Schedule,
 	Message,
 	Workspace,
-	WorkspaceUser,
+	UserWorkspace,
 };

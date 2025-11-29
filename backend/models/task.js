@@ -1,23 +1,59 @@
-export default (sequelize, DataTypes) =>
-	sequelize.define(
-		'tasks',
+export default (sequelize, DataTypes) => {
+	return sequelize.define(
+		'Task',
 		{
-			id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
-			workspace_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'workspaces', key: 'id' } },
-			team_id: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'teams', key: 'id' } },
-			title: { type: DataTypes.STRING(150), allowNull: false },
-			description: { type: DataTypes.TEXT, allowNull: true },
+			id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				primaryKey: true,
+				autoIncrement: true,
+			},
+			team_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Teams',
+					key: 'id',
+				},
+				onDelete: 'CASCADE',
+			},
+			created_by_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'RESTRICT',
+			},
+			task_name: {
+				type: DataTypes.STRING(150),
+				allowNull: false,
+			},
+			task_desc: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			date_due: {
+				type: DataTypes.DATE,
+				allowNull: true,
+			},
 			status: {
-				type: DataTypes.ENUM('open', 'published', 'inprogress', 'complete'),
+				type: DataTypes.ENUM('open', 'inprogress', 'complete'),
 				allowNull: false,
 				defaultValue: 'open',
 			},
-			xp_reward: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 10 },
-			due_date: { type: DataTypes.DATE, allowNull: true },
-			created_by: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
-			created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-			updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-			deleted_at: { type: DataTypes.DATE, allowNull: true },
+			task_xp: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				defaultValue: 10,
+				field: 'task_xp',
+			},
 		},
-		{ timestamps: false }
+		{
+			tableName: 'Tasks',
+			timestamps: true,
+			paranoid: true, // adds deletedAt (soft‑delete)
+			underscored: true,
+		}
 	);
+};

@@ -1,17 +1,39 @@
-export default (sequelize, DataTypes) =>
-	sequelize.define(
-		'messages',
+export default (sequelize, DataTypes) => {
+	return sequelize.define(
+		'Message',
 		{
-			id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
-			workspace_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'workspaces', key: 'id' } },
-			sender_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
-			recipient_user_id: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'users', key: 'id' } },
-			recipient_team_id: { type: DataTypes.INTEGER, allowNull: true, references: { model: 'teams', key: 'id' } },
-			subject: { type: DataTypes.STRING(150), allowNull: false },
-			body: { type: DataTypes.TEXT, allowNull: false },
-			status: { type: DataTypes.ENUM('draft', 'sent'), allowNull: false, defaultValue: 'sent' },
-			created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-			updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+			id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				primaryKey: true,
+				autoIncrement: true,
+			},
+			team_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Teams',
+					key: 'id',
+				},
+				onDelete: 'CASCADE',
+			},
+			created_by_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'RESTRICT',
+			},
+			content: {
+				type: DataTypes.TEXT,
+				allowNull: false,
+			},
 		},
-		{ timestamps: false }
+		{
+			tableName: 'Messages',
+			timestamps: true, // adds createdAt / updatedAt
+			underscored: true,
+		}
 	);
+};

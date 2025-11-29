@@ -1,93 +1,154 @@
-import 'dotenv/config';
+import express from 'express';
 import { Router } from 'express';
-import { body, validationResult } from 'express-validator';
-import bcrypt from 'bcryptjs';
+import { Op } from 'sequelize';
+import cors from 'cors';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
+import { query, body, param, validationResult } from 'express-validator';
 import { authenticate } from '../middleware/auth.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = Router();
+const BCRYPT_COST = parseInt(process.env.BCRYPT_COST) || 10;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 const JWT_EXPIRES_IN = '2h';
 
-function signToken(user) {
-	return jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-}
+router.use(cors());
+router.use(express.json());
 
-function isStrongPassword(pwd) {
-	return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(pwd);
+function signToken(payload) {
+	return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
 const validate = (req, res, next) => {
 	const errors = validationResult(req);
-	if (!errors.isEmpty()) return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
-	return next();
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ errors: errors.array() });
+	}
+	next();
 };
 
 router.post(
 	'/register',
 	[
-		body('username').trim().notEmpty(),
-		body('name').trim().notEmpty(),
-		body('email').isEmail(),
-		body('password').custom(val => isStrongPassword(val)),
+		body('username')
+			.trim()
+			.notEmpty()
+			.withMessage('Username is required')
+			.isAlphanumeric()
+			.withMessage('Username may only contain letters & numbers')
+			.isLength({ max: 50 })
+			.withMessage('Username may be at most 50 characters'),
+
+		body('email')
+			.trim()
+			.notEmpty()
+			.withMessage('Email is required')
+			.isEmail()
+			.withMessage('Must be a valid email address')
+			.isLength({ max: 150 })
+			.withMessage('Email may be at most 150 characters'),
+
+		body('password')
+			.notEmpty()
+			.withMessage('Password is required')
+			.isLength({ min: 8 })
+			.withMessage('Password must be at least 8 characters'),
+
+		body('role')
+			.isIn(['user', 'admin'])
+			.withMessage('Role must be either user or admin'),
+
+		body('avatar_url')
+			.optional({ checkFalsy: true })
+			.isURL()
+			.withMessage('Avatar URL must be a valid URL'),
+		validate,
 	],
-	validate,
 	async (req, res) => {
-		const { username, name, email, password } = req.body;
-	try {
-		const existing = await User.findOne({ where: { email } });
-		if (existing) return res.status(409).json({ message: 'Email already in use' });
+		const { username, email, password, role, avatar_url } = req.body;
 
-		const password_hash = await bcrypt.hash(password, 10);
-		const user = await User.create({ username, name, email, password_hash, role: 'user' });
-		const token = signToken(user);
-		return res.status(201).json({ token, expiresIn: JWT_EXPIRES_IN, user: { id: user.id, username, email } });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({ message: 'Registration failed' });
-	}
+		const duplicate = await User.findOne({
+			where: {
+				[Op.or]: [{ email }, { username }],
+			},
+		});
+
+		if (duplicate) {
+			// Let the client know exactly what is duplicated
+			const conflictField = duplicate.email === email ? 'email' : 'username';
+			return res.status(409).json({
+				error: {
+					message: `A user with that ${conflictField} already exists`,
+				},
+			});
+		}
+
+		const hashedPass = await bcrypt.hash(password, BCRYPT_COST);
+
+		const transaction = await User.sequelize.transaction();
+		try {
+			const newUser = await User.create(
+				{
+					username,
+					email,
+					password_hash: hashedPass,
+					role,
+					avatar_url: avatar_url || null,
+				},
+				{ transaction }
+			);
+			await transaction.commit();
+
+			const token = signToken({
+				id: newUser.id,
+				email: newUser.email,
+				role: newUser.role,
+			});
+
+			res.status(201).json({
+				success: {
+					message: 'New user created!',
+					token,
+					expire: JWT_EXPIRES_IN,
+					user: {
+						id: newUser.id,
+						username: newUser.username,
+						email: newUser.email,
+					},
+				},
+			}); // don't send the user details back for security
+		} catch (error) {
+			// Log the raw MySQL error (if any)
+			await transaction.rollback();
+			console.error('Register error:', error);
+			if (error.parent) {
+				console.error('MySQL error code:', error.parent.errno);
+				console.error('MySQL message   :', error.parent.sqlMessage);
+			}
+
+			if (error.name === 'SequelizeUniqueConstraintError') {
+				return res
+					.status(409)
+					.json({ error: { message: 'Email or username already taken' } });
+			}
+
+			// Handle a "data too long" scenario
+			if (error.parent && error.parent.errno === 1406) {
+				return res.status(400).json({
+					error: {
+						message: 'One of the fields is too long for the database column.',
+					},
+				});
+			}
+
+			return res
+				.status(500)
+				.json({ error: { message: 'Internal server error' } });
+		}
 	}
 );
-
-router.post(
-	'/login',
-	[body('email').isEmail(), body('password').notEmpty()],
-	validate,
-	async (req, res) => {
-		const { email, password } = req.body;
-	try {
-		const user = await User.findOne({ where: { email } });
-		if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-		const valid = await bcrypt.compare(password, user.password_hash);
-		if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
-		const token = signToken(user);
-		return res.json({ token, expiresIn: JWT_EXPIRES_IN, user: { id: user.id, username: user.username, email } });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({ message: 'Login failed' });
-	}
-	}
-);
-
-router.post('/change-password', authenticate, async (req, res) => {
-	const { currentPassword, newPassword } = req.body;
-	if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Missing fields' });
-	if (!isStrongPassword(newPassword)) {
-		return res.status(400).json({ message: 'Password must be at least 8 characters with upper, lower, and number' });
-	}
-	try {
-		const user = await User.findByPk(req.user.id);
-		if (!user) return res.status(404).json({ message: 'User not found' });
-		const valid = await bcrypt.compare(currentPassword, user.password_hash);
-		if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
-		const password_hash = await bcrypt.hash(newPassword, 10);
-		await user.update({ password_hash });
-		return res.json({ message: 'Password updated' });
-	} catch (err) {
-		console.error(err);
-		return res.status(500).json({ message: 'Password change failed' });
-	}
-});
 
 export default router;

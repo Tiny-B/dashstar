@@ -110,3 +110,4 @@ CREATE TABLE Messages (
     CONSTRAINT fk_message_creator FOREIGN KEY (created_by_user_id)
         REFERENCES Users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
+
