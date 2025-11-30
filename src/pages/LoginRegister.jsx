@@ -17,12 +17,12 @@ export default function LoginRegister() {
 		avatar_url: '',
 	});
 
-	async function checkLogin() {
+	async function sendData(url, data) {
 		try {
-			const response = await fetch('http://localhost:3002/api/login', {
+			const response = await fetch(url, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(formDataLogin),
+				body: JSON.stringify(data),
 			});
 			return response;
 		} catch (error) {
@@ -50,7 +50,10 @@ export default function LoginRegister() {
 		e.preventDefault();
 
 		if (state?.fromLandingBtn === 'login') {
-			const response = await checkLogin();
+			const response = await sendData(
+				'http://localhost:3002/api/login',
+				formDataLogin
+			);
 			console.log('response:', response);
 
 			const data = await response.json();
