@@ -13,9 +13,10 @@ export default function LoginRegister() {
 		username: '',
 		email: '',
 		password: '',
-		role: '',
+		role: 'user',
 		avatar_url: '',
 	});
+	const [passwordMatch, setPasswordMatch] = useState('');
 
 	async function sendData(url, data) {
 		try {
@@ -32,6 +33,7 @@ export default function LoginRegister() {
 
 	const handleOnChange = e => {
 		const { name, value } = e.target;
+		console.log('e.target:', e.target.value);
 
 		if (state?.fromLandingBtn === 'login') {
 			setFormDataLogin({
@@ -39,7 +41,12 @@ export default function LoginRegister() {
 				[name]: value,
 			});
 		} else {
-			setFormDataLogin({
+			if (e.target.name === 'passwordMatch') {
+				setPasswordMatch(e.target.value);
+				console.log(e.target.value);
+			}
+
+			setFormDataRegister({
 				...formDataRegister,
 				[name]: value,
 			});
@@ -49,29 +56,39 @@ export default function LoginRegister() {
 	const handleOnSubmit = async e => {
 		e.preventDefault();
 
+		let response;
+
 		if (state?.fromLandingBtn === 'login') {
-			const response = await sendData(
+			response = await sendData(
 				'http://localhost:3002/api/login',
 				formDataLogin
 			);
-
-			const data = await response.json();
-			console.log('data:', data);
-			const status = response.status;
-
-			if (status === 200 || status === 201) {
-				data.data.user.role === 'user'
-					? navigate('/dashboard', {
-							replace: true,
-							state: { fromLogin: data.data.user },
-					  })
-					: navigate('/admin', {
-							replace: true,
-							state: { fromLogin: data.data.user },
-					  });
-			} else {
-				console.log(data.error.message);
+		} else {
+			if (formDataRegister.password !== passwordMatch) {
+				console.log('Passwords must match');
+				return;
 			}
+			response = await sendData(
+				'http://localhost:3002/api/register',
+				formDataRegister
+			);
+		}
+
+		const responseData = await response.json();
+		const status = response.status;
+
+		if (status === 200 || status === 201) {
+			responseData.data.user.role === 'user'
+				? navigate('/dashboard', {
+						replace: true,
+						state: { fromLogin: responseData.data.user },
+				  })
+				: navigate('/admin', {
+						replace: true,
+						state: { fromLogin: responseData.data.user },
+				  });
+		} else {
+			console.log(data.error.message);
 		}
 	};
 
@@ -159,6 +176,19 @@ export default function LoginRegister() {
 								</button>
 							</div>
 						</form>
+
+						<p className='mt-10 text-center text-sm/6 text-gray-400'>
+							Don't have an account?
+							<button
+								style={{ color: 'white' }}
+								className='ml-4 font-semibold text-indigo-400 hover:text-indigo-300'
+								onClick={() => {
+									navigate('/login', { state: { fromLandingBtn: 'register' } });
+								}}
+							>
+								Register
+							</button>
+						</p>
 					</div>
 				</div>
 			) : (
@@ -171,7 +201,7 @@ export default function LoginRegister() {
 							className='mx-auto h-10 w-auto'
 						/>
 						<h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-white'>
-							Sign in to your account
+							Create an account
 						</h2>
 					</div>
 
@@ -179,14 +209,41 @@ export default function LoginRegister() {
 						<form
 							action='#'
 							method='POST'
+							onSubmit={handleOnSubmit}
 							className='space-y-6'
 						>
+							<div>
+								<label
+									htmlFor='username'
+									className='block text-sm/6 font-medium text-gray-100 tx'
+								>
+									Username{' '}
+									<span style={{ color: '#ad002b', marginLeft: '10px' }}>
+										* Required
+									</span>
+								</label>
+								<div className='mt-2'>
+									<input
+										id='username'
+										type='text'
+										name='username'
+										required
+										onChange={handleOnChange}
+										value={formDataRegister.username}
+										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
+									/>
+								</div>
+							</div>
+
 							<div>
 								<label
 									htmlFor='email'
 									className='block text-sm/6 font-medium text-gray-100 tx'
 								>
-									Email address
+									Email address{' '}
+									<span style={{ color: '#ad002b', marginLeft: '10px' }}>
+										* Required
+									</span>
 								</label>
 								<div className='mt-2'>
 									<input
@@ -194,7 +251,6 @@ export default function LoginRegister() {
 										type='email'
 										name='email'
 										required
-										autoComplete='email'
 										onChange={handleOnChange}
 										value={formDataRegister.email}
 										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
@@ -208,16 +264,11 @@ export default function LoginRegister() {
 										htmlFor='password'
 										className='block text-sm/6 font-medium text-gray-100'
 									>
-										Password
+										Password{' '}
+										<span style={{ color: '#ad002b', marginLeft: '10px' }}>
+											* Required
+										</span>
 									</label>
-									<div className='text-sm'>
-										<a
-											href='#'
-											className='font-semibold text-indigo-400 hover:text-indigo-300'
-										>
-											Forgot password?
-										</a>
-									</div>
 								</div>
 								<div className='mt-2'>
 									<input
@@ -225,10 +276,94 @@ export default function LoginRegister() {
 										type='password'
 										name='password'
 										required
-										autoComplete='current-password'
 										onChange={handleOnChange}
 										value={formDataRegister.password}
 										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
+									/>
+								</div>
+							</div>
+							<div>
+								<div className='flex items-center justify-between'>
+									<label
+										htmlFor='passwordMatch'
+										className='block text-sm/6 font-medium text-gray-100'
+									>
+										Re-enter Password{' '}
+										<span style={{ color: '#ad002b', marginLeft: '10px' }}>
+											* Required
+										</span>
+									</label>
+								</div>
+								<div className='mt-2'>
+									<input
+										id='passwordMatch'
+										type='password'
+										name='passwordMatch'
+										required
+										onChange={handleOnChange}
+										value={passwordMatch}
+										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
+									/>
+								</div>
+							</div>
+
+							<div>
+								<label
+									htmlFor='role'
+									className='block text-sm/6 font-medium text-gray-100 tx'
+								>
+									Account Role
+								</label>
+								<div className='mt-2'>
+									<select
+										id='role'
+										name='role'
+										onChange={handleOnChange}
+										value={formDataRegister.role}
+										style={{ backgroundColor: 'rgb(49, 0, 37)' }}
+										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
+									>
+										<option value='user'>User</option>
+										<option value='admin'>Admin</option>
+									</select>
+								</div>
+							</div>
+
+							<div>
+								<div className='flex items-center justify-between'>
+									<label
+										htmlFor='avatar_url'
+										className='block text-sm/6 font-medium text-gray-100'
+									>
+										Avatar image URL (Optional)
+									</label>
+								</div>
+								<div className='mt-2'>
+									<input
+										id='avatar_url'
+										type='text'
+										name='avatar_url'
+										onChange={handleOnChange}
+										value={formDataRegister.avatar_url}
+										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
+									/>
+								</div>
+								<div>
+									<img
+										style={{
+											width: '100px',
+											height: '100px',
+											borderRadius: '50%',
+											objectFit: 'cover',
+											margin: '0 auto',
+											marginTop: '20px',
+										}}
+										src={
+											!formDataRegister.avatar_url
+												? null
+												: formDataRegister.avatar_url
+										}
+										alt='Avatar image'
 									/>
 								</div>
 							</div>
@@ -238,19 +373,22 @@ export default function LoginRegister() {
 									type='submit'
 									className='mr-auto ml-auto flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500'
 								>
-									Sign in
+									Register
 								</button>
 							</div>
 						</form>
 
 						<p className='mt-10 text-center text-sm/6 text-gray-400'>
 							Already have an account?
-							<a
-								href='#'
+							<button
+								style={{ color: 'white' }}
 								className='ml-4 font-semibold text-indigo-400 hover:text-indigo-300'
+								onClick={() => {
+									navigate('/login', { state: { fromLandingBtn: 'login' } });
+								}}
 							>
 								Login
-							</a>
+							</button>
 						</p>
 					</div>
 				</div>

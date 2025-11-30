@@ -123,6 +123,12 @@ router.post(
 						id: newUser.id,
 						username: newUser.username,
 						email: newUser.email,
+						role: newUser.role,
+						level: newUser.level,
+						xp: newUser.xp,
+						numTasks: newUser.numTasksCompleted,
+						theme: newUser.theme,
+						avatar_url: newUser.avatar_url,
 					},
 				},
 			}); // don't send the user pass back for security

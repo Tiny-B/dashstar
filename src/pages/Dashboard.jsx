@@ -44,7 +44,7 @@ export default function Dashboard() {
 		// 		}
 		// 	}
 		// }
-
+    console.log(state.fromLogin);
 		setLevel(state.fromLogin.level);
 		setUsername(state.fromLogin.username);
 	}, []);
