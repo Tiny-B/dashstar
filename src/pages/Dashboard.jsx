@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import TaskCard from '../components/TaskCard';
 import TaskList from '../components/TaskList';
 import './CSS/dashboard.css';
@@ -8,13 +9,12 @@ import avatarDefault from '../assets/avatardefault.svg';
 import burgerMenuIcon from '../assets/BurgerMenuIcon.png';
 
 export default function Dashboard() {
-	const { state } = useLocation();
-	const [level, setLevel] = useState(5);
-	const [totalXp, settotalXp] = useState(503);
-	const [nextXp, setnextXp] = useState(25);
-	const [xPSession, setxPSession] = useState(25);
-	const [username, setUsername] = useState('Eri');
-	const [usersSurname, setusersSurname] = useState('Belladonna');
+	const { user, logout } = useAuth();
+	const [level, setLevel] = useState(0);
+	const [totalXp, setTotalXp] = useState(0);
+	const [nextXp, setNextXp] = useState(0);
+	const [xPSession, setXPSession] = useState(0);
+	const [username, setUsername] = useState('');
 	const [taskList, setTaskList] = useState([]);
 	const [inprogressList, setInprogressList] = useState([]);
 	const [completeList, setCompleteList] = useState([]);
@@ -44,9 +44,10 @@ export default function Dashboard() {
 		// 		}
 		// 	}
 		// }
-    console.log(state.fromLogin);
-		setLevel(state.fromLogin.level);
-		setUsername(state.fromLogin.username);
+		console.log('Dashboard', user);
+		setLevel(user.level);
+		setTotalXp(user.xp);
+		setUsername(user.username);
 	}, []);
 
 	const TaskListPlaceHolder = () => {
@@ -102,6 +103,7 @@ export default function Dashboard() {
 						alt='Open menu icon'
 					/>
 				</div>
+				<button onClick={() => logout()}>Logout</button>
 				<div className='widgets'>
 					<div className='level-widget dash-bg dash-border dash-shadow'>
 						<div className='current-level'>

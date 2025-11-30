@@ -9,11 +9,39 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(cors());
+const whitelist = [
+	'http://localhost:5173',
+	'http://127.0.0.1:5173',
+	'http://localhost:4000',
+	'http://127.0.0.1:4000',
+	// URLs here,'https://my‑app.com'
+];
+app.use(
+	cors({
+		origin: (origin, callback) => {
+			if (!origin) return callback(null, true);
+			if (whitelist.includes(origin)) return callback(null, true);
+			return callback(new Error('Not allowed by CORS'));
+		},
+		credentials: true,
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		exposedHeaders: ['Set-Cookie'],
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+	})
+);
 app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api', RegisterLoginRoute);
+
+app.use((err, req, res, next) => {
+	console.error('error:', err);
+	const status = err.status || 500;
+	const message = err.message || 'Internal server error';
+
+	res.status(status).json({ error: { message } });
+	next();
+});
 
 (async () => {
 	try {

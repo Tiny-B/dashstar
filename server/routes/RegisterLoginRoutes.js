@@ -28,6 +28,52 @@ const validate = (req, res, next) => {
 	next();
 };
 
+router.get('/me', (req, res) => {
+	const token = req.cookies?.token;
+
+	if (!token) {
+		return res.status(401).json({ error: { message: 'Not authenticated' } });
+	}
+
+	try {
+		const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+		User.findByPk(payload.id, {
+			attributes: [
+				'id',
+				'username',
+				'email',
+				'role',
+				'level',
+				'xp',
+				'numTasksCompleted',
+				'theme',
+				'avatar_url',
+			],
+		})
+			.then(user => {
+				if (!user) throw new Error('User not found');
+				res.json({ data: { user } });
+			})
+			.catch(e => {
+				console.error('User lookup failed →', e);
+				res.status(500).json({ error: { message: 'Server error' } });
+			});
+	} catch (e) {
+		console.error('Token verification failed →', e);
+		res.status(401).json({ error: { message: 'Invalid token' } });
+	}
+});
+
+router.post('/logout', (req, res) => {
+	res.clearCookie('token', {
+		httpOnly: true,
+		secure: true,
+		sameSite: 'none',
+		path: '/',
+	});
+	return res.json({ data: { message: 'Logged out' } });
+});
+
 // =========================== Register ============================
 router.post(
 	'/register',
@@ -103,14 +149,20 @@ router.post(
 
 			const token = signToken({
 				id: newUser.id,
+				username: newUser.username,
 				email: newUser.email,
 				role: newUser.role,
+				level: newUser.level,
+				xp: newUser.xp,
+				numTasks: newUser.numTasksCompleted,
+				theme: newUser.theme,
+				avatar_url: newUser.avatar_url,
 			});
 
 			res.cookie('token', token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production', // true on prod
-				sameSite: 'strict',
+				secure: true,
+				sameSite: 'none',
 				maxAge: ACCESS_TTL * 1000,
 				path: '/',
 			});
@@ -199,15 +251,22 @@ router.post(
 
 			const token = signToken({
 				id: user.id,
+				username: user.username,
 				email: user.email,
+				role: user.role,
+				level: user.level,
+				xp: user.xp,
+				numTasks: user.numTasksCompleted,
+				theme: user.theme,
+				avatar_url: user.avatar_url,
 			});
 
 			res.clearCookie('token');
 
 			res.cookie('token', token, {
 				httpOnly: true,
-				secure: process.env.NODE_ENV === 'production',
-				sameSite: 'strict',
+				secure: true,
+				sameSite: 'none',
 				maxAge: ACCESS_TTL * 1000,
 				path: '/',
 			});

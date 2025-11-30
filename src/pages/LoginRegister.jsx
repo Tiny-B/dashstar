@@ -1,10 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './CSS/loginregister.css';
 
 export default function LoginRegister() {
 	const { state } = useLocation();
+	const { login } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [formDataLogin, setFormDataLogin] = useState({
 		email: '',
 		password: '',
@@ -17,6 +20,7 @@ export default function LoginRegister() {
 		avatar_url: '',
 	});
 	const [passwordMatch, setPasswordMatch] = useState('');
+	const [msg, setMsg] = useState('');
 
 	async function sendData(url, data) {
 		try {
@@ -24,6 +28,7 @@ export default function LoginRegister() {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data),
+				credentials: 'include',
 			});
 			return response;
 		} catch (error) {
@@ -55,7 +60,7 @@ export default function LoginRegister() {
 
 	const handleOnSubmit = async e => {
 		e.preventDefault();
-
+		setMsg('');
 		let response;
 
 		if (state?.fromLandingBtn === 'login') {
@@ -78,17 +83,18 @@ export default function LoginRegister() {
 		const status = response.status;
 
 		if (status === 200 || status === 201) {
+			const user = responseData.data.user;
+			console.log('Login', user);
+			login(user);
 			responseData.data.user.role === 'user'
 				? navigate('/dashboard', {
 						replace: true,
-						state: { fromLogin: responseData.data.user },
 				  })
 				: navigate('/admin', {
 						replace: true,
-						state: { fromLogin: responseData.data.user },
 				  });
 		} else {
-			console.log(data.error.message);
+			setMsg(data.error.message);
 		}
 	};
 
@@ -166,6 +172,10 @@ export default function LoginRegister() {
 									/>
 								</div>
 							</div>
+
+							{msg && (
+								<p className='mt-2 text-center text-sm text-red-400'>{msg}</p>
+							)}
 
 							<div>
 								<button
@@ -367,6 +377,10 @@ export default function LoginRegister() {
 									/>
 								</div>
 							</div>
+
+							{msg && (
+								<p className='mt-2 text-center text-sm text-red-400'>{msg}</p>
+							)}
 
 							<div>
 								<button

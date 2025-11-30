@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import LoginRegister from './pages/LoginRegister';
+import RequireAuth from './components/RequireAuth';
 
 function App() {
 	return (
@@ -14,20 +15,26 @@ function App() {
 				element={<Landing />}
 			/>
 			<Route
-				path='/profile'
-				element={<Profile />}
-			/>
-			<Route
-				path='/dashboard'
-				element={<Dashboard />}
-			/>
-			<Route
-				path='/admin'
-				element={<Admin />}
-			/>
-			<Route
 				path='/login'
 				element={<LoginRegister />}
+			/>
+			<Route element={<RequireAuth />}>
+				<Route
+					path='/profile'
+					element={<Profile />}
+				/>
+				<Route
+					path='/dashboard'
+					element={<Dashboard />}
+				/>
+				<Route
+					path='/admin'
+					element={<Admin />}
+				/>
+			</Route>
+			<Route
+				path='*'
+				element={<p>404 - page not found</p>}
 			/>
 		</Routes>
 	);
