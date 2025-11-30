@@ -25,12 +25,12 @@ export default function FeatureSection({ features }) {
 										className='feature relative pl-9'
 									>
 										<dt className='inline font-semibold text-white'>
-											<di
+											<div
 												aria-hidden='true'
-												className='mr-10 size-5 text-indigo-400'
+												className=' inline mr-10 size-5 text-indigo-400'
 											>
 												{feature.icon}
-											</di>
+											</div>
 											{feature.name}
 										</dt>{' '}
 										<dd className='inline'>{feature.description}</dd>

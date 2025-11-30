@@ -178,39 +178,77 @@ router.post(
 	async (req, res) => {
 		const { email, password } = req.body;
 
-		const user = await User.findOne({ where: { email } });
-		if (!user)
+		try {
+			const user = await User.findOne({ where: { email } });
+			if (!user)
+				return res
+					.status(401)
+					.json({ error: { message: 'No user with that email address' } });
+
+			const password_match = await bcrypt.compare(password, user.password_hash);
+			if (!password_match)
+				return res
+					.status(401)
+					.json({ error: { message: 'Incorrect password' } });
+
+			const token = signToken({
+				id: user.id,
+				email: user.email,
+			});
+
+			res.clearCookie('token');
+
+			res.cookie('token', token, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === 'production',
+				sameSite: 'strict',
+				maxAge: ACCESS_TTL * 1000,
+				path: '/',
+			});
+
+			return res.status(200).json({
+				data: {
+					message: 'Login successful',
+					expiresIn: ACCESS_TTL,
+					user: {
+						id: user.id,
+						username: user.username,
+						email: user.email,
+						role: user.role,
+						level: user.level,
+						xp: User.xp,
+						numTasks: user.numTasksCompleted,
+						theme: user.theme,
+						avatar_url: user.avatar_url,
+					},
+				},
+			});
+		} catch (error) {
+			console.error('Login error:', error);
+			if (error.parent) {
+				console.error('MySQL error code:', error.parent.errno);
+				console.error('MySQL message   :', error.parent.sqlMessage);
+			}
+
+			// if (error.name === 'SequelizeUniqueConstraintError') {
+			// 	return res
+			// 		.status(409)
+			// 		.json({ error: { message: 'Email or username already taken' } });
+			// }
+
+			// Handle a "data too long" scenario
+			if (error.parent && error.parent.errno === 1406) {
+				return res.status(400).json({
+					error: {
+						message: 'One of the fields is too long for the database column.',
+					},
+				});
+			}
+
 			return res
-				.status(401)
-				.json({ error: { message: 'No user with that email address' } });
-
-		const password_match = await bcrypt.compare(password, user.password_hash);
-		if (!password_match)
-			return res.status(401).json({ error: { message: 'Incorrect password' } });
-
-		const token = signToken({
-			id: user.id,
-			email: user.email,
-			role: user.role,
-		});
-
-		res.clearCookie('token');
-
-		res.cookie('token', token, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'strict',
-			maxAge: ACCESS_TTL * 1000,
-			path: '/',
-		});
-
-		return res.status(200).json({
-			data: {
-				message: 'Login successful',
-				expiresIn: ACCESS_TTL,
-				user: { id: user.id, username: user.username, email: user.email },
-			},
-		});
+				.status(500)
+				.json({ error: { message: 'Internal server error' } });
+		}
 	}
 );
 

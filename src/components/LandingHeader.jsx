@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './CSS/LandingHeader.css';
 
 export default function LandingHeader() {
@@ -5,8 +6,18 @@ export default function LandingHeader() {
 		<nav>
 			<h1>Dashstar</h1>
 			<div>
-				<button>Login</button>
-				<button>Register</button>
+				<Link
+					to='/login'
+					state={{ fromLandingBtn: 'login' }}
+				>
+					<button style={{ color: 'white' }}>Login</button>
+				</Link>
+				<Link
+					to='/login'
+					state={{ fromLandingBtn: 'register' }}
+				>
+					<button style={{ color: 'white' }}>Register</button>
+				</Link>
 			</div>
 		</nav>
 	);
