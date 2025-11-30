@@ -216,7 +216,7 @@ router.post(
 						email: user.email,
 						role: user.role,
 						level: user.level,
-						xp: User.xp,
+						xp: user.xp,
 						numTasks: user.numTasksCompleted,
 						theme: user.theme,
 						avatar_url: user.avatar_url,

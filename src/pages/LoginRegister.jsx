@@ -54,26 +54,24 @@ export default function LoginRegister() {
 				'http://localhost:3002/api/login',
 				formDataLogin
 			);
-			console.log('response:', response);
 
 			const data = await response.json();
 			console.log('data:', data);
-
 			const status = response.status;
-			console.log('status:', response.status);
 
-			if (status === 200) {
-				console.log('redirect to dashboard');
-
-				console.log(data.data.user);
+			if (status === 200 || status === 201) {
 				data.data.user.role === 'user'
-					? navigate('/dashboard', { replace: true, state: data.data.user })
-					: navigate('/admin', { replace: true, state: data.data.user });
+					? navigate('/dashboard', {
+							replace: true,
+							state: { fromLogin: data.data.user },
+					  })
+					: navigate('/admin', {
+							replace: true,
+							state: { fromLogin: data.data.user },
+					  });
 			} else {
 				console.log(data.error.message);
 			}
-		} else {
-			// do registration logic
 		}
 	};
 

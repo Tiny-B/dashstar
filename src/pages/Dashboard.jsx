@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import TaskCard from '../components/TaskCard';
 import TaskList from '../components/TaskList';
@@ -7,42 +8,45 @@ import avatarDefault from '../assets/avatardefault.svg';
 import burgerMenuIcon from '../assets/BurgerMenuIcon.png';
 
 export default function Dashboard() {
+	const { state } = useLocation();
 	const [level, setLevel] = useState(5);
 	const [totalXp, settotalXp] = useState(503);
 	const [nextXp, setnextXp] = useState(25);
 	const [xPSession, setxPSession] = useState(25);
-	const [usersName, setusersName] = useState('Eri');
+	const [username, setUsername] = useState('Eri');
 	const [usersSurname, setusersSurname] = useState('Belladonna');
 	const [taskList, setTaskList] = useState([]);
 	const [inprogressList, setInprogressList] = useState([]);
 	const [completeList, setCompleteList] = useState([]);
 
-	// useEffect(() => {
-	// 	// populate the task lists on load
-	// 	// only have and only will ever have 3 lists, sorry for the magic number :P
-	// 	for (let i = 0; i < 3; i++) {
-	// 		let status = '';
-	// 		if (i === 0) {
-	// 			status = 'open';
-	// 		} else if (i === 1) {
-	// 			status = 'inprogress';
-	// 		} else {
-	// 			status = 'complete';
-	// 		}
+	useEffect(() => {
+		// populate the task lists on load
+		// only have and only will ever have 3 lists, sorry for the magic number :P
+		// for (let i = 0; i < 3; i++) {
+		// 	let status = '';
+		// 	if (i === 0) {
+		// 		status = 'open';
+		// 	} else if (i === 1) {
+		// 		status = 'inprogress';
+		// 	} else {
+		// 		status = 'complete';
+		// 	}
 
-	// 		const tempList = tasks.filter(task => task.status === status);
+		// 	const tempList = tasks.filter(task => task.status === status);
 
-	// 		if (tempList.length !== 0) {
-	// 			if (tempList[0].status === 'open') {
-	// 				setTaskList(tempList);
-	// 			} else if (tempList[0].status === 'inprogress') {
-	// 				setInprogressList(tempList);
-	// 			} else if (tempList[0].status === 'complete') {
-	// 				setCompleteList(tempList);
-	// 			}
-	// 		}
-	// 	}
-	// }, []);
+		// 	if (tempList.length !== 0) {
+		// 		if (tempList[0].status === 'open') {
+		// 			setTaskList(tempList);
+		// 		} else if (tempList[0].status === 'inprogress') {
+		// 			setInprogressList(tempList);
+		// 		} else if (tempList[0].status === 'complete') {
+		// 			setCompleteList(tempList);
+		// 		}
+		// 	}
+		// }
+		setLevel(state.fromLogin.level);
+		setUsername(state.fromLogin.username);
+	}, []);
 
 	const TaskListPlaceHolder = () => {
 		const placeholderStyle = {
@@ -150,8 +154,7 @@ export default function Dashboard() {
 					</div>
 					<div className='profile-widget dash-bg dash-border dash-shadow'>
 						<div className='user-info'>
-							<p>{usersName}</p>
-							<p>{usersSurname}</p>
+							<p>{username}</p>
 						</div>
 						<div className='profile-pic'>
 							<img
