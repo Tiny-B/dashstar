@@ -11,7 +11,7 @@ import {
 	TeamMember,
 	Task,
 } from '../models/indexModel.js';
-import { uniqueWorkspaceCode } from '../scripts/util.js';
+import uniqueWorkspaceCode from '../scripts/util.js';
 import { query, body, param, validationResult } from 'express-validator';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -155,32 +155,55 @@ router.post(
 			);
 
 			// create Workspace entry by default with randomized unique code and assign the users id as the admin_user_id
-			const defaultWorkspace = await Workspace.create({
-				code: uniqueWorkspaceCode(25),
-				admin_user_id: newUser.id,
-			});
+			const defaultWorkspace = await Workspace.create(
+				{
+					code: uniqueWorkspaceCode(25),
+					admin_user_id: newUser.id,
+				},
+				{ transaction }
+			);
 
 			// add created Workspace to a UserWorkspace entry with the created Workspace id as the workspace_id, add the users id as user_id
-			const defaultUserWorkspace = await UserWorkspace.create({
-				user_id: newUser.id,
-				workspace_id: defaultWorkspace.id,
-				role: 'admin',
-			});
+			const defaultUserWorkspace = await UserWorkspace.create(
+				{
+					user_id: newUser.id,
+					workspace_id: defaultWorkspace.id,
+					role: 'admin',
+				},
+				{ transaction }
+			);
 
 			// Create default team entry on Teams called *personal* with the created Workspace id as the workspace_id and the admin_user id as the users id
-			const defaultTeam = await Team.create({
-				workspace_id: defaultUserWorkspace.id,
-				name: 'personal',
-				admin_user_id: newUser.id,
-			});
+			const defaultTeam = await Team.create(
+				{
+					workspace_id: defaultUserWorkspace.id,
+					name: 'personal',
+					admin_user_id: newUser.id,
+				},
+				{ transaction }
+			);
 
 			// Create a TeamMembers entry with the personal teams id as the team_id and the users id as user_id
-			const defaultTeamMembers = await TeamMember.create({
-				team_id: defaultTeam.id,
-				user_id: newUser.id,
-			});
+			await TeamMember.create(
+				{
+					team_id: defaultTeam.id,
+					user_id: newUser.id,
+				},
+				{ transaction }
+			);
 
-			const sampleTask = await Task.create({});
+			await Task.create(
+				{
+					team_id: defaultTeam.id,
+					created_by_user_id: newUser.id,
+					task_name: 'Sample Tasks',
+					task_desc: 'This task is here to text the db',
+					date_due: null,
+					status: 'open',
+					task_xp: 10,
+				},
+				{ transaction }
+			);
 
 			await transaction.commit();
 
