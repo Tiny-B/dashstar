@@ -14,14 +14,13 @@
 
   --highlight-color: rgb(98, 44, 114);
 
-  background-color: rgb(23, 0, 17);
+  background-color: rgb(8, 0, 4);
 
   font-family: "Lora", serif;
   line-height: 1.5;
   font-weight: 400;
 
   color: white;
-  background-color: rgb(23, 0, 17);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

@@ -10,6 +10,7 @@ import RequireAuth from './components/RequireAuth';
 function App() {
 	return (
 		<Routes>
+			{/* Public routes */}
 			<Route
 				path='/'
 				element={<Landing />}
@@ -18,6 +19,8 @@ function App() {
 				path='/login'
 				element={<LoginRegister />}
 			/>
+
+			{/* Protected routes */}
 			<Route element={<RequireAuth />}>
 				<Route
 					path='/profile'
@@ -32,6 +35,7 @@ function App() {
 					element={<Admin />}
 				/>
 			</Route>
+
 			<Route
 				path='*'
 				element={<p>404 - page not found</p>}

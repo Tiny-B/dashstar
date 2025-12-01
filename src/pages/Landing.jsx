@@ -2,6 +2,7 @@ import LandingHeader from '../components/LandingHeader';
 import CarouselBanner from '../components/CarouselBanner';
 import LandingFooter from '../components/LandingFooter';
 import FeatureSection from '../components/FeatureSection';
+import TextType from '../components/TextType';
 import './CSS/landing.css';
 
 const features = [
@@ -28,7 +29,18 @@ export default function Landing() {
 	return (
 		<div className='landing'>
 			<LandingHeader />
-			<h2 className='tagline'>Free, fun and intuitive task management</h2>
+			<TextType
+				className='tagline'
+				text={[
+					'Fun and intuitive task management',
+					'Work happier with little rewards for doing tasks',
+					'Earn badges, achievements and unlock secrets!!',
+				]}
+				typingSpeed={75}
+				pauseDuration={1500}
+				showCursor={true}
+				cursorCharacter='|'
+			/>
 			<FeatureSection features={features} />
 			<LandingFooter />
 		</div>
