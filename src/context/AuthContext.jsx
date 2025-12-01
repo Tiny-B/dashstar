@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 const AuthContext = createContext({
 	user: null,
 	loading: true,
@@ -14,9 +16,15 @@ export const AuthProvider = ({ children }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		if (!API_BASE) {
+			console.error('VITE_API_BASE_URL is not set. Please set it in your .env file.');
+			setLoading(false);
+			return;
+		}
+
 		const checkSession = async () => {
 			try {
-				const res = await fetch('http://localhost:3002/api/me', {
+				const res = await fetch(`${API_BASE}/me`, {
 					credentials: 'include',
 				});
 
@@ -38,8 +46,14 @@ export const AuthProvider = ({ children }) => {
 	};
 
 	const logout = async () => {
+		if (!API_BASE) {
+			setUser(null);
+			navigate('/login', { state: { fromLandingBtn: 'login' }, replace: true });
+			return;
+		}
+
 		try {
-			await fetch('http://localhost:3002/api/logout', {
+			await fetch(`${API_BASE}/logout`, {
 				method: 'POST',
 				credentials: 'include',
 			});

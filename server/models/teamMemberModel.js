@@ -19,7 +19,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'TeamMembers',
-			timestamps: true,
+			timestamps: false,
 			underscored: true,
 		}
 	);

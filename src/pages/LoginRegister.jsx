@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import logo from '../assets/dash-logo.png';
 import './CSS/loginregister.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 export default function LoginRegister() {
 	const { state } = useLocation();
 	const { login } = useAuth();
@@ -62,22 +64,27 @@ export default function LoginRegister() {
 	const handleOnSubmit = async e => {
 		e.preventDefault();
 		setMsg('');
+
+		if (!API_BASE) {
+			setMsg('Missing API base URL. Please set VITE_API_BASE_URL in your .env file.');
+			return;
+		}
+
 		let response;
 
 		if (state?.fromLandingBtn === 'login') {
-			response = await sendData(
-				'http://localhost:3002/api/login',
-				formDataLogin
-			);
+			response = await sendData(`${API_BASE}/login`, formDataLogin);
 		} else {
 			if (formDataRegister.password !== passwordMatch) {
 				console.log('Passwords must match');
 				return;
 			}
-			response = await sendData(
-				'http://localhost:3002/api/register',
-				formDataRegister
-			);
+			response = await sendData(`${API_BASE}/register`, formDataRegister);
+		}
+
+		if (!response) {
+			setMsg('Network error. Is the server running?');
+			return;
 		}
 
 		const responseData = await response.json();
@@ -95,7 +102,7 @@ export default function LoginRegister() {
 						replace: true,
 				  });
 		} else {
-			setMsg(data.error.message);
+			setMsg(responseData?.error?.message || 'Request failed. Please try again.');
 		}
 	};
 

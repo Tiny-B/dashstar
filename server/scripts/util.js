@@ -1,4 +1,4 @@
-const uniqueWorkspaceCode = codeLength => {
+export function uniqueWorkspaceCode(codeLength = 8) {
 	let code = '';
 	const validCharacters = [
 		'a',
@@ -70,12 +70,5 @@ const uniqueWorkspaceCode = codeLength => {
 		code += validCharacters[r];
 	}
 
-	console.log('code:', code);
 	return code;
-};
-
-for (let i = 0; i < 50; i++) {
-	uniqueWorkspaceCode(25);
 }
-
-export default { uniqueWorkspaceCode };

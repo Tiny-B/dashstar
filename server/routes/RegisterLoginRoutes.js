@@ -11,7 +11,7 @@ import {
 	TeamMember,
 	Task,
 } from '../models/indexModel.js';
-import uniqueWorkspaceCode from '../scripts/util.js';
+import { uniqueWorkspaceCode } from '../scripts/util.js';
 import { query, body, param, validationResult } from 'express-validator';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -21,6 +21,14 @@ const BCRYPT_COST = parseInt(process.env.BCRYPT_COST) || 10;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '6h';
 const ACCESS_TTL = parseInt(process.env.ACCESS_TOKEN_TTL, 10) || 21600;
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+const cookieOptions = {
+	httpOnly: true,
+	secure: IS_PROD,
+	sameSite: IS_PROD ? 'none' : 'lax',
+	path: '/',
+};
 
 router.use(express.json());
 
@@ -63,22 +71,17 @@ router.get('/me', (req, res) => {
 				res.json({ data: { user } });
 			})
 			.catch(e => {
-				console.error('User lookup failed →', e);
+				console.error('User lookup failed ƒ+'', e);
 				res.status(500).json({ error: { message: 'Server error' } });
 			});
 	} catch (e) {
-		console.error('Token verification failed →', e);
+		console.error('Token verification failed ƒ+'', e);
 		res.status(401).json({ error: { message: 'Invalid token' } });
 	}
 });
 
 router.post('/logout', (req, res) => {
-	res.clearCookie('token', {
-		httpOnly: true,
-		secure: true,
-		sameSite: 'none',
-		path: '/',
-	});
+	res.clearCookie('token', cookieOptions);
 	return res.json({ data: { message: 'Logged out' } });
 });
 
@@ -130,7 +133,6 @@ router.post(
 		});
 
 		if (duplicate) {
-			// Let the client know exactly what is duplicated
 			const conflictField = duplicate.email === email ? 'email' : 'username';
 			return res.status(409).json({
 				error: {
@@ -148,13 +150,12 @@ router.post(
 					username,
 					email,
 					password_hash: hashedPass,
-					role, // might remove this as its redundant
+					role,
 					avatar_url: avatar_url || null,
 				},
 				{ transaction }
 			);
 
-			// create Workspace entry by default with randomized unique code and assign the users id as the admin_user_id
 			const defaultWorkspace = await Workspace.create(
 				{
 					code: uniqueWorkspaceCode(25),
@@ -163,7 +164,6 @@ router.post(
 				{ transaction }
 			);
 
-			// add created Workspace to a UserWorkspace entry with the created Workspace id as the workspace_id, add the users id as user_id
 			const defaultUserWorkspace = await UserWorkspace.create(
 				{
 					user_id: newUser.id,
@@ -173,17 +173,15 @@ router.post(
 				{ transaction }
 			);
 
-			// Create default team entry on Teams called *personal* with the created Workspace id as the workspace_id and the admin_user id as the users id
 			const defaultTeam = await Team.create(
 				{
-					workspace_id: defaultUserWorkspace.id,
+					workspace_id: defaultWorkspace.id,
 					name: 'personal',
 					admin_user_id: newUser.id,
 				},
 				{ transaction }
 			);
 
-			// Create a TeamMembers entry with the personal teams id as the team_id and the users id as user_id
 			await TeamMember.create(
 				{
 					team_id: defaultTeam.id,
@@ -196,9 +194,8 @@ router.post(
 				{
 					team_id: defaultTeam.id,
 					created_by_user_id: newUser.id,
-					task_name: 'Sample Tasks',
-					task_desc: 'This task is here to text the db',
-					date_due: null,
+					task_name: 'Getting started',
+					task_desc: 'This is a sample task to get you going.',
 					status: 'open',
 					task_xp: 10,
 				},
@@ -220,11 +217,8 @@ router.post(
 			});
 
 			res.cookie('token', token, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'none',
+				...cookieOptions,
 				maxAge: ACCESS_TTL * 1000,
-				path: '/',
 			});
 
 			res.status(201).json({
@@ -243,7 +237,7 @@ router.post(
 						avatar_url: newUser.avatar_url,
 					},
 				},
-			}); // don't send the user pass back for security
+			});
 		} catch (error) {
 			await transaction.rollback();
 			console.error('Register error:', error);
@@ -258,7 +252,6 @@ router.post(
 					.json({ error: { message: 'Email or username already taken' } });
 			}
 
-			// Handle a "data too long" scenario
 			if (error.parent && error.parent.errno === 1406) {
 				return res.status(400).json({
 					error: {
@@ -324,11 +317,8 @@ router.post(
 			res.clearCookie('token');
 
 			res.cookie('token', token, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'none',
+				...cookieOptions,
 				maxAge: ACCESS_TTL * 1000,
-				path: '/',
 			});
 
 			return res.status(200).json({
@@ -355,13 +345,6 @@ router.post(
 				console.error('MySQL message   :', error.parent.sqlMessage);
 			}
 
-			// if (error.name === 'SequelizeUniqueConstraintError') {
-			// 	return res
-			// 		.status(409)
-			// 		.json({ error: { message: 'Email or username already taken' } });
-			// }
-
-			// Handle a "data too long" scenario
 			if (error.parent && error.parent.errno === 1406) {
 				return res.status(400).json({
 					error: {
