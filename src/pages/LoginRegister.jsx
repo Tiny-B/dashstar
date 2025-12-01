@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/dash-logo.png';
@@ -105,11 +105,14 @@ export default function LoginRegister() {
 			{state?.fromLandingBtn === 'login' ? (
 				<div className='flex min-h-full flex-col justify-center px-6 py-12 lg:px-8'>
 					<div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-						<img
-							src={logo}
-							alt='Your Company'
-							className='mx-auto h-30 w-auto'
-						/>
+						<Link to='/'>
+							<img
+								src={logo}
+								alt='Dashstar logo'
+								className='mx-auto h-30 w-auto'
+							/>
+						</Link>
+
 						<h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-white'>
 							Sign in to your account
 						</h2>
@@ -206,11 +209,14 @@ export default function LoginRegister() {
 				<div className='flex min-h-full flex-col justify-center px-6 py-12 lg:px-8'>
 					{/* Register */}
 					<div className='sm:mx-auto sm:w-full sm:max-w-sm'>
-						<img
-							src={logo}
-							alt='Your Company'
-							className='mx-auto h-30 w-auto'
-						/>
+						<Link to='/'>
+							<img
+								src={logo}
+								alt='Dashstar logo'
+								className='mx-auto h-30 w-auto'
+							/>
+						</Link>
+
 						<h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-white'>
 							Create an account
 						</h2>
@@ -368,13 +374,14 @@ export default function LoginRegister() {
 											objectFit: 'cover',
 											margin: '0 auto',
 											marginTop: '20px',
+											backgroundColor: '#4d0731',
 										}}
 										src={
 											!formDataRegister.avatar_url
 												? null
 												: formDataRegister.avatar_url
 										}
-										alt='Avatar image'
+										alt='Avatar image preview'
 									/>
 								</div>
 							</div>
