@@ -4,9 +4,26 @@
 	overflow: visible;
 }
 
+.list-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
 .list-title {
 	font-size: 1.7rem;
   padding-left: 70px;
+}
+
+.create-task-btn {
+  width: 80px;
+  height: 30px;
+  transition: transform 0.3s ease;
+}
+
+.create-task-btn:hover {
+  transform: scale(1.2);
 }
 
 .scroll-area {

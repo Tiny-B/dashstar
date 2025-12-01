@@ -1,4 +1,4 @@
-nav {
+.header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -7,4 +7,16 @@ nav {
 
 nav button {
 	margin-left: 50px;
+}
+
+.LandingHeaderBtn:hover {
+  transform: scale(1.2);
+  border-color: #ff64dd;
+}
+
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px
 }

@@ -10,6 +10,7 @@ function Profile() {
   const [city, setCity] = useState("");
   const [timezone, setTimezone] = useState("");
   const [theme, setTheme] = useState("");
+  const [role, setRole] = useState("User");
 
   const initials = fullName
     ? fullName

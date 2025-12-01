@@ -1,0 +1,17 @@
+.outer-container {
+	background: linear-gradient(to right, var(--grad-left), var(--grad-right));
+	width: 100%;
+	margin: 0 auto;
+	border-top: solid 2px var(--dash-element-border-color);
+	border-bottom: solid 2px var(--dash-element-border-color);
+}
+
+.feature {
+	border-top: solid 2px var(--dash-element-border-color);
+	padding-top: 20px;
+	margin-bottom: 20px;
+}
+
+.feat-img {
+  margin: auto 0;
+}

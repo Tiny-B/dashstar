@@ -1,19 +1,35 @@
 @import 'tailwindcss';
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+	--grad-left: rgb(23, 0, 17);
+	--grad-right: rgb(49, 0, 37);
+
+  --dash-element-bg: rgb(33, 0, 25);
+  --dash-element-border: 2px solid rgb(76, 0, 57);
+  --dash-element-border-color: rgb(76, 0, 57);
+  --dash-element-shadow: 10px 10px 20px rgb(5, 0, 4);
+
+  --assign-button-color: rgb(56, 14, 134);
+  --complete-button-color: rgb(14, 134, 94);
+
+  --highlight-color: rgb(87, 9, 41);
+
+  background-color: rgb(8, 0, 4);
+
+  font-family: "Lora", serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: white;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
+
+  margin: 0 auto;
+  padding: 0;
 }
 
 a {
@@ -27,11 +43,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: rgb(23, 0, 17);
+  width: 100%;
 }
 
 h1 {
@@ -40,18 +54,20 @@ h1 {
 }
 
 button {
+  width: 150px;
+  height: 50px;
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #31001d;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #ff64dd;
+  background-color: #4d0731;
 }
 button:focus,
 button:focus-visible {

@@ -1,45 +1,53 @@
-import process from 'process';
-import 'dotenv/config';
+import RegisterLoginRoute from './server/routes/RegisterLoginRoutes.js';
 import express from 'express';
+import sequelize from './server/config/db.js';
 import cors from 'cors';
-import authRoutes from './backend/routes/auth.js';
-import teamRoutes from './backend/routes/teams.js';
-import taskRoutes from './backend/routes/tasks.js';
-import userRoutes from './backend/routes/users.js';
-import scheduleRoutes from './backend/routes/schedules.js';
-import messageRoutes from './backend/routes/messages.js';
-import workspaceRoutes from './backend/routes/workspaces.js';
-import { sequelize } from './backend/models/index.js';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET;
+const PORT = process.env.PORT;
 
-if (!JWT_SECRET || JWT_SECRET === 'dev-secret' || JWT_SECRET === 'change_me_to_a_long_random_value') {
-	console.error('JWT_SECRET must be set to a strong value in .env');
-	process.exit(1);
-}
-
-app.use(cors());
+const whitelist = [
+	'http://localhost:5173',
+	'http://127.0.0.1:5173',
+	'http://localhost:4000',
+	'http://127.0.0.1:4000',
+	// URLs here,'https://my‑app.com'
+];
+app.use(
+	cors({
+		origin: (origin, callback) => {
+			if (!origin) return callback(null, true);
+			if (whitelist.includes(origin)) return callback(null, true);
+			return callback(new Error('Not allowed by CORS'));
+		},
+		credentials: true,
+		allowedHeaders: ['Content-Type', 'Authorization'],
+		exposedHeaders: ['Set-Cookie'],
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+	})
+);
 app.use(express.json());
+app.use(cookieParser());
 
-app.use('/api/auth', authRoutes);
-app.use('/api', teamRoutes);
-app.use('/api', taskRoutes);
-app.use('/api', userRoutes);
-app.use('/api', scheduleRoutes);
-app.use('/api', messageRoutes);
-app.use('/api', workspaceRoutes);
+app.use('/api', RegisterLoginRoute);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.use((err, req, res, next) => {
+	console.error('error:', err);
+	const status = err.status || 500;
+	const message = err.message || 'Internal server error';
 
-app.all('*', (req, res) => {
-	res.status(404).json({ message: 'Route not found' });
+	res.status(status).json({ error: { message } });
+	next();
 });
 
 (async () => {
 	try {
 		await sequelize.authenticate();
+		console.log('connection established');
+
 		await sequelize.sync();
 
 		const server = app.listen(PORT, () => {
@@ -55,3 +63,7 @@ app.all('*', (req, res) => {
 		process.exit(1);
 	}
 })();
+
+// // sudo mysql -u <username> -p -h <host>
+
+// export NODE_EXTRA_CA_CERTS=$(pwd)/certs/aiven-ca.pem

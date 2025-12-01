@@ -5,10 +5,10 @@
 	padding: 10px;
 	width: 90%;
 	height: 180px;
-	background-color: rgb(49, 0, 37);
-	border: 2px solid rgb(76, 0, 57);
+	background-color: var(--grad-left);
+	border: var(--dash-element-border);
 	border-radius: 20px;
-	box-shadow: 10px 10px 20px rgb(5, 0, 4);
+	box-shadow: var(--dash-element-shadow);
 	will-change: transform;
 	transition: transform 0.25s ease, border 0.25s ease, box-shadow 0.25s ease;
 }
@@ -16,7 +16,7 @@
 	width: 400px;
 	cursor: pointer;
 	transform: scale(1.4);
-	border: 4px solid rgb(98, 44, 114);
+	border: 4px solid var(--highlight-color);
 	z-index: 4;
 	overflow-x: visible;
 }
@@ -24,14 +24,14 @@
 .task-title {
 	font-size: 1.1rem;
 	padding-bottom: 5px;
-	border-bottom: 2px solid rgb(76, 0, 57);
+	border-bottom: 2px solid var(--dash-element-border-color);
 }
 
 .task-desc {
 	width: 100%;
 	height: 50%;
 	padding-top: 5px;
-	border-bottom: 2px solid rgb(76, 0, 57);
+	border-bottom: 2px solid var(--dash-element-border-color);
 }
 
 .task-buttons {
@@ -51,11 +51,11 @@
 }
 
 .assign-button {
-	background-color: rgb(56, 14, 134);
+	background-color: var(--assign-button-color);
 }
 
 .complete-button {
-	background-color: rgb(14, 134, 94);
+	background-color: var(--complete-button-color);
 }
 
 

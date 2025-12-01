@@ -1,0 +1,33 @@
+.team-icon-container {
+	display: flex;
+}
+
+.team-name-popup {
+  z-index: 2;
+	opacity: 1;
+	transform: scale(1);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.team-name-popup.fade {
+	opacity: 0;
+	transform: scale(0.5);
+}
+
+.team-button:hover {
+	cursor: pointer;
+	border-color: #ff64dd;
+}
+
+.team-name-popup {
+	position: relative;
+	background-color: var(--dash-element-bg);
+	border: var(--dash-element-border);
+	border-color: #ff64dd;
+	border-radius: 20px;
+	width: 200px;
+	margin-left: 20px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
