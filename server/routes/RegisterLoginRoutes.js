@@ -12,12 +12,12 @@ import {
 	Task,
 } from '../models/indexModel.js';
 import { uniqueWorkspaceCode } from '../scripts/util.js';
-import { query, body, param, validationResult } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = Router();
-const BCRYPT_COST = parseInt(process.env.BCRYPT_COST) || 10;
+const BCRYPT_COST = parseInt(process.env.BCRYPT_COST, 10) || 10;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '6h';
 const ACCESS_TTL = parseInt(process.env.ACCESS_TOKEN_TTL, 10) || 21600;
@@ -41,12 +41,11 @@ const validate = (req, res, next) => {
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() });
 	}
-	next();
+	return next();
 };
 
 router.get('/me', (req, res) => {
 	const token = req.cookies?.token;
-
 	if (!token) {
 		return res.status(401).json({ error: { message: 'Not authenticated' } });
 	}
@@ -68,15 +67,15 @@ router.get('/me', (req, res) => {
 		})
 			.then(user => {
 				if (!user) throw new Error('User not found');
-				res.json({ data: { user } });
+				return res.json({ data: { user } });
 			})
-			.catch(e => {
-				console.error('User lookup failed ƒ+'', e);
-				res.status(500).json({ error: { message: 'Server error' } });
+			.catch(err => {
+				console.error('User lookup failed', err);
+				return res.status(500).json({ error: { message: 'Server error' } });
 			});
-	} catch (e) {
-		console.error('Token verification failed ƒ+'', e);
-		res.status(401).json({ error: { message: 'Invalid token' } });
+	} catch (err) {
+		console.error('Token verification failed', err);
+		return res.status(401).json({ error: { message: 'Invalid token' } });
 	}
 });
 
@@ -97,7 +96,6 @@ router.post(
 			.withMessage('Username may only contain letters & numbers')
 			.isLength({ max: 50 })
 			.withMessage('Username may be at most 50 characters'),
-
 		body('email')
 			.trim()
 			.notEmpty()
@@ -106,17 +104,14 @@ router.post(
 			.withMessage('Must be a valid email address')
 			.isLength({ max: 150 })
 			.withMessage('Email may be at most 150 characters'),
-
 		body('password')
 			.notEmpty()
 			.withMessage('Password is required')
 			.isLength({ min: 8 })
 			.withMessage('Password must be at least 8 characters'),
-
 		body('role')
 			.isIn(['user', 'admin'])
 			.withMessage('Role must be either user or admin'),
-
 		body('avatar_url')
 			.optional({ checkFalsy: true })
 			.isURL()
@@ -127,17 +122,12 @@ router.post(
 		const { username, email, password, role, avatar_url } = req.body;
 
 		const duplicate = await User.findOne({
-			where: {
-				[Op.or]: [{ email }, { username }],
-			},
+			where: { [Op.or]: [{ email }, { username }] },
 		});
-
 		if (duplicate) {
 			const conflictField = duplicate.email === email ? 'email' : 'username';
 			return res.status(409).json({
-				error: {
-					message: `A user with that ${conflictField} already exists`,
-				},
+				error: { message: `A user with that ${conflictField} already exists` },
 			});
 		}
 
@@ -164,7 +154,7 @@ router.post(
 				{ transaction }
 			);
 
-			const defaultUserWorkspace = await UserWorkspace.create(
+			await UserWorkspace.create(
 				{
 					user_id: newUser.id,
 					workspace_id: defaultWorkspace.id,
@@ -221,7 +211,7 @@ router.post(
 				maxAge: ACCESS_TTL * 1000,
 			});
 
-			res.status(201).json({
+			return res.status(201).json({
 				data: {
 					message: 'New user created!',
 					expire: ACCESS_TTL,
@@ -279,7 +269,6 @@ router.post(
 			.withMessage('Must be a valid email address')
 			.isLength({ max: 150 })
 			.withMessage('Email may be at most 150 characters'),
-
 		body('password')
 			.notEmpty()
 			.withMessage('Password is required')
@@ -291,16 +280,18 @@ router.post(
 
 		try {
 			const user = await User.findOne({ where: { email } });
-			if (!user)
+			if (!user) {
 				return res
 					.status(401)
 					.json({ error: { message: 'No user with that email address' } });
+			}
 
-			const password_match = await bcrypt.compare(password, user.password_hash);
-			if (!password_match)
+			const passwordMatch = await bcrypt.compare(password, user.password_hash);
+			if (!passwordMatch) {
 				return res
 					.status(401)
 					.json({ error: { message: 'Incorrect password' } });
+			}
 
 			const token = signToken({
 				id: user.id,
