@@ -12,7 +12,7 @@
   --assign-button-color: rgb(56, 14, 134);
   --complete-button-color: rgb(14, 134, 94);
 
-  --highlight-color: rgb(98, 44, 114);
+  --highlight-color: rgb(87, 9, 41);
 
   background-color: rgb(8, 0, 4);
 
@@ -69,6 +69,7 @@ button {
 }
 button:hover {
   border-color: #ff64dd;
+  background-color: #4d0731;
 }
 button:focus,
 button:focus-visible {

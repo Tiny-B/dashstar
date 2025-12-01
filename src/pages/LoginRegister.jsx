@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/dash-logo.png';
 import './CSS/loginregister.css';
 
 export default function LoginRegister() {
@@ -105,9 +106,9 @@ export default function LoginRegister() {
 				<div className='flex min-h-full flex-col justify-center px-6 py-12 lg:px-8'>
 					<div className='sm:mx-auto sm:w-full sm:max-w-sm'>
 						<img
-							src='https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500'
+							src={logo}
 							alt='Your Company'
-							className='mx-auto h-10 w-auto'
+							className='mx-auto h-30 w-auto'
 						/>
 						<h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-white'>
 							Sign in to your account
@@ -206,9 +207,9 @@ export default function LoginRegister() {
 					{/* Register */}
 					<div className='sm:mx-auto sm:w-full sm:max-w-sm'>
 						<img
-							src='https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500'
+							src={logo}
 							alt='Your Company'
-							className='mx-auto h-10 w-auto'
+							className='mx-auto h-30 w-auto'
 						/>
 						<h2 className='mt-10 text-center text-2xl/9 font-bold tracking-tight text-white'>
 							Create an account
