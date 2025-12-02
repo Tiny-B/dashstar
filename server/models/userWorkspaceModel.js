@@ -15,7 +15,7 @@ export default (sequelize, DataTypes) => {
 				onDelete: 'CASCADE',
 			},
 			role: {
-				type: DataTypes.ENUM('admin', 'member'), // admin or member
+				type: DataTypes.ENUM('admin', 'member'), 
 				allowNull: false,
 				defaultValue: 'member',
 			},
