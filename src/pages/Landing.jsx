@@ -9,19 +9,19 @@ const features = [
 	{
 		name: 'Manage your workflow.',
 		description: 'Tasks created by admins, direct to your board.',
-		icon: '◈',
+		icon: '*',
 	},
 	{
 		name: 'Earn XP, Level up. Win.',
 		description:
 			'Complete tasks to earn xp, compete with your team or against other teams, work with goals.',
-		icon: '◈',
+		icon: '*',
 	},
 	{
 		name: 'Database backups.',
 		description:
 			'Everything is secured on a database, so no need to worry about losing your tasks.',
-		icon: '◈',
+		icon: '*',
 	},
 ];
 
@@ -46,3 +46,5 @@ export default function Landing() {
 		</div>
 	);
 }
+
+

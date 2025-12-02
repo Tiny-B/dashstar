@@ -19,7 +19,6 @@ export default function LoginRegister() {
 		username: '',
 		email: '',
 		password: '',
-		role: 'user',
 		avatar_url: '',
 	});
 	const [passwordMatch, setPasswordMatch] = useState('');
@@ -54,10 +53,12 @@ export default function LoginRegister() {
 				console.log(e.target.value);
 			}
 
-			setFormDataRegister({
-				...formDataRegister,
-				[name]: value,
-			});
+			if (name !== 'role') {
+				setFormDataRegister({
+					...formDataRegister,
+					[name]: value,
+				});
+			}
 		}
 	};
 
@@ -328,28 +329,6 @@ export default function LoginRegister() {
 										value={passwordMatch}
 										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
 									/>
-								</div>
-							</div>
-
-							<div>
-								<label
-									htmlFor='role'
-									className='block text-sm/6 font-medium text-gray-100 tx'
-								>
-									Account Role
-								</label>
-								<div className='mt-2'>
-									<select
-										id='role'
-										name='role'
-										onChange={handleOnChange}
-										value={formDataRegister.role}
-										style={{ backgroundColor: 'rgb(49, 0, 37)' }}
-										className='block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6'
-									>
-										<option value='user'>User</option>
-										<option value='admin'>Admin</option>
-									</select>
 								</div>
 							</div>
 

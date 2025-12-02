@@ -8,6 +8,11 @@ export default (sequelize, DataTypes) => {
 				primaryKey: true,
 				autoIncrement: true,
 			},
+			name: {
+				type: DataTypes.STRING(150),
+				allowNull: false,
+				defaultValue: 'Workspace',
+			},
 			code: {
 				type: DataTypes.STRING(64),
 				unique: true,

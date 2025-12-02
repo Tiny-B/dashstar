@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import "./CSS/profile.css";
 
 function Profile() {
+  const { user, login } = useAuth();
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -11,6 +15,32 @@ function Profile() {
   const [timezone, setTimezone] = useState("");
   const [theme, setTheme] = useState("");
   const [role, setRole] = useState("User");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [statusMsg, setStatusMsg] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [level, setLevel] = useState(0);
+  const [totalXp, setTotalXp] = useState(0);
+  const [completedTasks, setCompletedTasks] = useState(0);
+
+  const xpRequiredForLevel = (lvl) => 100 + (Math.max(lvl, 1) - 1) * 50;
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name || "");
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setCountry(user.country || "");
+      setCity(user.city || "");
+      setTimezone(user.timezone || "");
+      setTheme(user.theme || "");
+      setRole(user.role || "User");
+      setAvatarUrl(user.avatar_url || "");
+      setLevel(user.level || 0);
+      setTotalXp(user.xp || 0);
+      setCompletedTasks(user.numTasksCompleted || 0);
+    }
+  }, [user]);
 
   const initials = fullName
     ? fullName
@@ -20,34 +50,79 @@ function Profile() {
         .toUpperCase()
     : "U";
 
+  const saveProfile = async () => {
+    if (!API_BASE) return;
+    setSaving(true);
+    setStatusMsg("");
+    try {
+      const res = await fetch(`${API_BASE}/users/profile`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          username,
+          email,
+          phone,
+          country,
+          city,
+          timezone,
+          theme,
+        }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Profile update failed");
+      }
+      const data = await res.json();
+      if (data.user) login(data.user);
+      setStatusMsg("Profile updated.");
+    } catch (err) {
+      console.error(err);
+      setStatusMsg("Could not update profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const nextXpTarget = xpRequiredForLevel(level);
+  const progressPct = Math.min(100, Math.round((totalXp / nextXpTarget) * 100));
+
   return (
     <div className="profile-container">
 
-      {/* HEADER */}
       <div className="profile-header">
         <div className="profile-header-left">
-          <div className="profile-avatar">{initials}</div>
+          <div className="profile-avatar">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="avatar"
+                style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+              />
+            ) : (
+              initials
+            )}
+          </div>
 
           <div className="profile-header-text">
             <h2>{fullName || "Your Name"}</h2>
             <p>{role}</p>
 
             <div className="profile-header-levels">
-              <span className="profile-pill">Level 12</span>
-              <span className="profile-pill">2,450 XP</span>
+              <span className="profile-pill">Level {level}</span>
+              <span className="profile-pill">{totalXp} XP</span>
             </div>
           </div>
         </div>
 
         <div className="profile-header-right">
-          <button className="header-btn">Edit Profile</button>
-          <button className="header-btn">Change Password</button>
+          <button className="header-btn" onClick={saveProfile} disabled={saving}>
+            {saving ? "Saving..." : "Save Profile"}
+          </button>
         </div>
       </div>
 
-      {/* REMOVED PAGE TITLE */}
-
-      {/* PERSONAL DETAILS */}
       <div className="profile-section profile-personal">
         <h2>Personal Details</h2>
 
@@ -132,26 +207,26 @@ function Profile() {
             <option value="system">System Default</option>
           </select>
 
-          <button type="button" className="save-btn">
-            Save Changes
+          <button type="button" className="save-btn" onClick={saveProfile} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
           </button>
+          {statusMsg && <p className="status-msg">{statusMsg}</p>}
         </form>
       </div>
 
-      {/* ACHIEVEMENTS */}
       <div className="profile-section profile-achievements">
         <h2>Achievements</h2>
 
-        <p>Completed Tasks: 0</p>
-        <p>Total XP: 0</p>
-        <p>Current Level: 0</p>
+        <p>Completed Tasks: {completedTasks}</p>
+        <p>Total XP: {totalXp}</p>
+        <p>Current Level: {level}</p>
+        <p>XP to Next: {xpRequiredForLevel(level) - totalXp}</p>
 
         <div className="progress-bar">
-          <div className="progress-fill"></div>
+          <div className="progress-fill" style={{ width: `${progressPct}%` }}></div>
         </div>
       </div>
 
-      {/* TEAM DETAILS */}
       <div className="profile-section profile-team">
         <h2>Team Details</h2>
 

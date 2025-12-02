@@ -33,14 +33,45 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.TEXT,
 				allowNull: true,
 			},
+			difficulty: {
+				type: DataTypes.ENUM('easy', 'medium', 'hard', 'insane'),
+				allowNull: false,
+				defaultValue: 'easy',
+			},
 			date_due: {
 				type: DataTypes.DATE,
 				allowNull: true,
 			},
 			status: {
-				type: DataTypes.ENUM('open', 'inprogress', 'complete'),
+				type: DataTypes.ENUM('open', 'inprogress', 'complete', 'archived'),
 				allowNull: false,
 				defaultValue: 'open',
+			},
+			assigned_to_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: true,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'SET NULL',
+			},
+			assigned_to_username: {
+				type: DataTypes.STRING(150),
+				allowNull: true,
+			},
+			completed_by_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: true,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'SET NULL',
+			},
+			completed_by_username: {
+				type: DataTypes.STRING(150),
+				allowNull: true,
 			},
 			task_xp: {
 				type: DataTypes.INTEGER.UNSIGNED,

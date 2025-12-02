@@ -1,38 +1,51 @@
 import RegisterLoginRoute from './server/routes/RegisterLoginRoutes.js';
+import TasksRoute from './server/routes/tasksRoutes.js';
+import WorkspacesRoute from './server/routes/workspacesRoutes.js';
+import UsersRoute from './server/routes/usersRoutes.js';
 import express from 'express';
 import sequelize from './server/config/db.js';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
-const whitelist = [
-	'http://localhost:5173',
-	'http://127.0.0.1:5173',
-	'http://localhost:4000',
-	'http://127.0.0.1:4000',
-	// URLs here,'https://my‑app.com'
-];
-app.use(
-	cors({
-		origin: (origin, callback) => {
-			if (!origin) return callback(null, true);
-			if (whitelist.includes(origin)) return callback(null, true);
-			return callback(new Error('Not allowed by CORS'));
-		},
-		credentials: true,
-		allowedHeaders: ['Content-Type', 'Authorization'],
-		exposedHeaders: ['Set-Cookie'],
-		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-	})
-);
+const allowedOrigins =
+	process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [
+		'http://localhost:5173',
+		'http://127.0.0.1:5173',
+		'http://localhost:4000',
+		'http://127.0.0.1:4000',
+	];
+
+app.use((req, res, next) => {
+	const origin = req.headers.origin;
+	if (!origin || allowedOrigins.includes(origin)) {
+		res.header('Access-Control-Allow-Origin', origin || '*');
+	}
+	res.header('Access-Control-Allow-Credentials', 'true');
+	res.header(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+	);
+	res.header(
+		'Access-Control-Allow-Methods',
+		'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD'
+	);
+	res.header('Access-Control-Expose-Headers', 'Set-Cookie');
+	if (req.method === 'OPTIONS') {
+		return res.sendStatus(204);
+	}
+	next();
+});
 app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api', RegisterLoginRoute);
+app.use('/api', TasksRoute);
+app.use('/api', WorkspacesRoute);
+app.use('/api', UsersRoute);
 
 app.use((err, req, res, next) => {
 	console.error('error:', err);
@@ -48,7 +61,7 @@ app.use((err, req, res, next) => {
 		await sequelize.authenticate();
 		console.log('connection established');
 
-		await sequelize.sync();
+		await sequelize.sync({ alter: true });
 
 		const server = app.listen(PORT, () => {
 			console.log(`Server is listening at http://localhost:${PORT}`);
@@ -67,3 +80,4 @@ app.use((err, req, res, next) => {
 // // sudo mysql -u <username> -p -h <host>
 
 // export NODE_EXTRA_CA_CERTS=$(pwd)/certs/aiven-ca.pem
+

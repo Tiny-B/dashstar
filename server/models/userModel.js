@@ -27,6 +27,26 @@ export default (sequelize, DataTypes) => {
 				defaultValue: 'user',
 				allowNull: false,
 			},
+			full_name: {
+				type: DataTypes.STRING(150),
+				allowNull: true,
+			},
+			phone: {
+				type: DataTypes.STRING(50),
+				allowNull: true,
+			},
+			country: {
+				type: DataTypes.STRING(100),
+				allowNull: true,
+			},
+			city: {
+				type: DataTypes.STRING(100),
+				allowNull: true,
+			},
+			timezone: {
+				type: DataTypes.STRING(100),
+				allowNull: true,
+			},
 			level: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				defaultValue: 1,
@@ -36,6 +56,12 @@ export default (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				defaultValue: 0,
 				allowNull: false,
+			},
+			numTasksCompleted: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				defaultValue: 0,
+				allowNull: false,
+				field: 'numTasksCompleted',
 			},
 			theme: {
 				type: DataTypes.STRING(50),

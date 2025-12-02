@@ -1,10 +1,11 @@
 .task-card {
 	position: relative;
-	overflow-x: visible;
+	overflow: visible;
 	margin: 20px auto;
-	padding: 10px;
+	padding: 12px;
 	width: 90%;
-	height: 180px;
+	min-height: 180px;
+	height: auto;
 	background-color: var(--grad-left);
 	border: var(--dash-element-border);
 	border-radius: 20px;
@@ -21,6 +22,14 @@
 	overflow-x: visible;
 }
 
+.task-card.archived-card,
+.task-card.archived-card:hover {
+	width: 100%;
+	transform: none;
+	border: var(--dash-element-border);
+	cursor: default;
+}
+
 .task-title {
 	font-size: 1.1rem;
 	padding-bottom: 5px;
@@ -34,13 +43,18 @@
 	border-bottom: 2px solid var(--dash-element-border-color);
 }
 
+.task-meta {
+	font-size: 0.85rem;
+	color: #e5e7eb;
+	margin-top: 6px;
+}
+
 .task-buttons {
-	height: 50px;
 	display: flex;
-  justify-content: flex-end;
-	gap: 30px;
+	justify-content: flex-end;
+	gap: 12px;
 	align-items: center;
-  margin-right: 20px;
+	margin-top: 10px;
 }
 
 .btn {

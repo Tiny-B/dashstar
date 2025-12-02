@@ -10,7 +10,7 @@ import {
 	Team,
 	TeamMember,
 	Task,
-} from '../models/indexModel.js';
+} from '../models/index.js';
 import { uniqueWorkspaceCode } from '../scripts/util.js';
 import { body, validationResult } from 'express-validator';
 import dotenv from 'dotenv';
@@ -44,7 +44,7 @@ const validate = (req, res, next) => {
 	return next();
 };
 
-router.get('/me', (req, res) => {
+	router.get('/me', (req, res) => {
 	const token = req.cookies?.token;
 	if (!token) {
 		return res.status(401).json({ error: { message: 'Not authenticated' } });
@@ -58,6 +58,11 @@ router.get('/me', (req, res) => {
 				'username',
 				'email',
 				'role',
+				'full_name',
+				'phone',
+				'country',
+				'city',
+				'timezone',
 				'level',
 				'xp',
 				'numTasksCompleted',
@@ -109,9 +114,6 @@ router.post(
 			.withMessage('Password is required')
 			.isLength({ min: 8 })
 			.withMessage('Password must be at least 8 characters'),
-		body('role')
-			.isIn(['user', 'admin'])
-			.withMessage('Role must be either user or admin'),
 		body('avatar_url')
 			.optional({ checkFalsy: true })
 			.isURL()
@@ -119,7 +121,8 @@ router.post(
 		validate,
 	],
 	async (req, res) => {
-		const { username, email, password, role, avatar_url } = req.body;
+		const { username, email, password, avatar_url } = req.body;
+		const role = 'user';
 
 		const duplicate = await User.findOne({
 			where: { [Op.or]: [{ email }, { username }] },
@@ -199,6 +202,11 @@ router.post(
 				username: newUser.username,
 				email: newUser.email,
 				role: newUser.role,
+				full_name: newUser.full_name,
+				phone: newUser.phone,
+				country: newUser.country,
+				city: newUser.city,
+				timezone: newUser.timezone,
 				level: newUser.level,
 				xp: newUser.xp,
 				numTasks: newUser.numTasksCompleted,
@@ -220,6 +228,11 @@ router.post(
 						username: newUser.username,
 						email: newUser.email,
 						role: newUser.role,
+						full_name: newUser.full_name,
+						phone: newUser.phone,
+						country: newUser.country,
+						city: newUser.city,
+						timezone: newUser.timezone,
 						level: newUser.level,
 						xp: newUser.xp,
 						numTasks: newUser.numTasksCompleted,
@@ -298,6 +311,11 @@ router.post(
 				username: user.username,
 				email: user.email,
 				role: user.role,
+				full_name: user.full_name,
+				phone: user.phone,
+				country: user.country,
+				city: user.city,
+				timezone: user.timezone,
 				level: user.level,
 				xp: user.xp,
 				numTasks: user.numTasksCompleted,
@@ -321,6 +339,11 @@ router.post(
 						username: user.username,
 						email: user.email,
 						role: user.role,
+						full_name: user.full_name,
+						phone: user.phone,
+						country: user.country,
+						city: user.city,
+						timezone: user.timezone,
 						level: user.level,
 						xp: user.xp,
 						numTasks: user.numTasksCompleted,
@@ -352,3 +375,4 @@ router.post(
 );
 
 export default router;
+

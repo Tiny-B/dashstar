@@ -1,51 +1,54 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export default function CardButton({ task_id, statusSetter }) {
-	const [status, setStatus] = useState('open');
+export default function CardButton({ taskId, initialStatus, onStatusChange, userRole }) {
+  const [status, setStatus] = useState(initialStatus || "open");
 
-	useEffect(() => {
-		statusSetter(status);
-		// console.log('list after state change (via useEffect):', status);
+  useEffect(() => {
+    setStatus(initialStatus || "open");
+  }, [initialStatus]);
 
-		// const newData = tasks.map(element => {
-		// 	if (element.id === task_id) {
-		// 		return { ...element, status: status };
-		// 	}
-		// 	return element;
-		// });
-		// console.log('newData:', newData);
-		// console.log('taskData', tasks);
-	}, [status, statusSetter]);
+  const buttonStyle = {
+    assign: {
+      backgroundColor: "rgb(56, 14, 134)",
+    },
+    complete: {
+      backgroundColor: "rgb(14, 134, 94)",
+    },
+    archive: {
+      backgroundColor: "#444",
+    },
+  };
 
-	const ButtonStyle = {
-		assign: {
-			backgroundColor: 'rgb(56, 14, 134)',
-		},
-		complete: {
-			backgroundColor: 'rgb(14, 134, 94)',
-		},
-	};
+  const nextStatus = status === "open" ? "inprogress" : "complete";
 
-	const handleClick = () => {
-		console.log('status before setState:', status);
-		setStatus(prev => (prev === 'open' ? 'inprogress' : 'complete'));
-	};
+  const handleClick = () => {
+    const next = nextStatus;
+    setStatus(next);
+    if (onStatusChange) onStatusChange(taskId, next);
+  };
 
-	if (status === 'complete') return null;
+  const handleArchive = () => {
+    setStatus("archived");
+    if (onStatusChange) onStatusChange(taskId, "archived");
+  };
 
-	return (
-		<div>
-			{status !== 'complete' ? (
-				<button
-					className='btn'
-					style={status === 'open' ? ButtonStyle.assign : ButtonStyle.complete}
-					onClick={handleClick}
-				>
-					{status === 'open' ? 'Assign' : 'Complete'}
-				</button>
-			) : (
-				<></>
-			)}
-		</div>
-	);
+  if (status === "archived") return null;
+
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      {status !== "complete" ? (
+        <button
+          className="btn"
+          style={status === "open" ? buttonStyle.assign : buttonStyle.complete}
+          onClick={handleClick}
+        >
+          {status === "open" ? "Assign" : "Complete"}
+        </button>
+      ) : (
+        <button className="btn" style={buttonStyle.archive} onClick={handleArchive}>
+          Archive
+        </button>
+      )}
+    </div>
+  );
 }

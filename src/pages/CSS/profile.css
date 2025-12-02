@@ -201,18 +201,26 @@
   .profile-form input:nth-of-type(8) { grid-area: input-theme; }
   
   /* Save button at bottom right */
-  .save-btn {
-    grid-area: button;
-    justify-self: end;
-    margin-top: 16px;
-    padding: 9px 18px;
-    background: #111827;
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-  }
+.save-btn {
+  grid-area: button;
+  justify-self: end;
+  margin-top: 16px;
+  padding: 9px 18px;
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.status-msg {
+  grid-area: button;
+  justify-self: start;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #0f766e;
+}
   
   /* ===== ACHIEVEMENTS CARD ===== */
   
@@ -231,12 +239,12 @@
     overflow: hidden;
   }
   
-  .progress-fill {
-    width: 75%; /* static value to imitate screenshot */
+.progress-fill {
     height: 100%;
     background: #4b5563;
     border-radius: 999px;
-  }
+    transition: width 0.3s ease;
+}
   
   /* ===== TEAM DETAILS CARD ===== */
   

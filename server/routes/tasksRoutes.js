@@ -1,258 +1,219 @@
 import { Router } from 'express';
-import {
-	Task,
-	TaskAssignment,
-	User,
-	WorkspaceUser,
-	Team,
-} from '../models/index.js';
+import { Task, TeamMember, Team, Workspace, User } from '../models/index.js';
 import { authenticate } from '../middleware/authenticate.js';
-import {
-	requireWorkspaceRole,
-	requireWorkspaceMember,
-} from '../middleware/workspaceAuth.js';
 
 const router = Router();
+const ALLOWED_STATUS = ['open', 'inprogress', 'complete', 'archived'];
+const ALLOWED_DIFFICULTY = ['easy', 'medium', 'hard', 'insane'];
+const XP_BY_DIFFICULTY = {
+	easy: 10,
+	medium: 25,
+	hard: 50,
+	insane: 100,
+};
 
-router.post(
-	'/admin/tasks',
-	authenticate,
-	requireWorkspaceRole(['owner', 'admin']),
-	async (req, res) => {
-		const {
-			title,
-			description,
-			xp_reward,
-			due_date,
-			status = 'open',
-			team_id,
-		} = req.body;
-		if (!title) return res.status(400).json({ message: 'Title required' });
-		if (!team_id) return res.status(400).json({ message: 'team_id required' });
-		try {
-			const team = await Team.findOne({
-				where: { id: team_id, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!team) return res.status(404).json({ message: 'Team not found' });
-			const task = await Task.create({
-				workspace_id: req.workspaceId,
-				team_id,
-				title,
-				description,
-				xp_reward: xp_reward ?? 10,
-				due_date: due_date || null,
-				status,
-				created_by: req.user.id,
-			});
-			return res.status(201).json(task);
-		} catch (err) {
-			console.error(err);
-			return res.status(500).json({ message: 'Create task failed' });
-		}
+function xpRequiredForLevel(level) {
+	return 100 + (level - 1) * 50;
+}
+
+async function applyXpAndCompletion(userId, xpAmount) {
+	const user = await User.findByPk(userId);
+	if (!user) return null;
+	let xp = user.xp + xpAmount;
+	let level = user.level;
+	let threshold = xpRequiredForLevel(level);
+	while (xp >= threshold) {
+		xp -= threshold;
+		level += 1;
+		threshold = xpRequiredForLevel(level);
 	}
-);
+	await user.update({
+		xp,
+		level,
+		numTasksCompleted: user.numTasksCompleted + 1,
+	});
+	return {
+		id: user.id,
+		username: user.username,
+		xp,
+		level,
+		numTasksCompleted: user.numTasksCompleted + 1,
+		email: user.email,
+		role: user.role,
+		full_name: user.full_name,
+		phone: user.phone,
+		country: user.country,
+		city: user.city,
+		timezone: user.timezone,
+		theme: user.theme,
+		avatar_url: user.avatar_url,
+	};
+}
 
-router.put(
-	'/admin/tasks/:taskId',
-	authenticate,
-	requireWorkspaceRole(['owner', 'admin']),
-	async (req, res) => {
-		const { taskId } = req.params;
-		const { title, description, xp_reward, due_date, status, team_id } =
-			req.body;
-		try {
-			const task = await Task.findOne({
-				where: { id: taskId, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!task) return res.status(404).json({ message: 'Task not found' });
-			if (team_id) {
-				const team = await Team.findOne({
-					where: {
-						id: team_id,
-						workspace_id: req.workspaceId,
-						deleted_at: null,
-					},
-				});
-				if (!team) return res.status(404).json({ message: 'Team not found' });
-			}
-			await task.update({
-				title: title ?? task.title,
-				description: description ?? task.description,
-				xp_reward: xp_reward ?? task.xp_reward,
-				due_date: due_date ?? task.due_date,
-				status: status ?? task.status,
-				team_id: team_id ?? task.team_id,
-			});
-			return res.json(task);
-		} catch (err) {
-			console.error(err);
-			return res.status(500).json({ message: 'Update task failed' });
-		}
-	}
-);
+async function ensureTeamMember(userId, teamId) {
+	const membership = await TeamMember.findOne({
+		where: { user_id: userId, team_id: teamId },
+	});
+	return membership;
+}
 
-router.delete(
-	'/admin/tasks/:taskId',
-	authenticate,
-	requireWorkspaceRole(['owner', 'admin']),
-	async (req, res) => {
-		const { taskId } = req.params;
-		try {
-			const task = await Task.findOne({
-				where: { id: taskId, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!task) return res.status(404).json({ message: 'Task not found' });
-			await task.update({ deleted_at: new Date(), status: 'archived' });
-			return res.json({ message: 'Task deleted' });
-		} catch (err) {
-			console.error(err);
-			return res.status(500).json({ message: 'Delete task failed' });
-		}
-	}
-);
-
-router.post(
-	'/tasks/:taskId/claim',
-	authenticate,
-	requireWorkspaceMember,
-	async (req, res) => {
-		const { taskId } = req.params;
-		try {
-			const task = await Task.findOne({
-				where: { id: taskId, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!task) return res.status(404).json({ message: 'Task not found' });
-			const user = await User.findOne({
-				where: { id: req.user.id, deleted_at: null },
-			});
-			if (!user) return res.status(404).json({ message: 'User not found' });
-			if (task.team_id && user.team_id !== task.team_id) {
-				return res
-					.status(403)
-					.json({ message: 'Task is not assigned to your team' });
-			}
-
-			const existing = await TaskAssignment.findOne({
-				where: { task_id: task.id, user_id: req.user.id },
-			});
-			if (existing) {
-				if (existing.status === 'completed') {
-					return res.status(400).json({ message: 'Task already completed' });
-				}
-				await existing.update({ status: 'in_progress' });
-				return res.json(existing);
-			}
-
-			const assignment = await TaskAssignment.create({
-				task_id: task.id,
-				user_id: req.user.id,
-				status: 'in_progress',
-			});
-			return res.status(201).json(assignment);
-		} catch (err) {
-			console.error(err);
-			return res.status(500).json({ message: 'Claim task failed' });
-		}
-	}
-);
-
-router.post(
-	'/tasks/:taskId/complete',
-	authenticate,
-	requireWorkspaceMember,
-	async (req, res) => {
-		const { taskId } = req.params;
-		try {
-			const task = await Task.findOne({
-				where: { id: taskId, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!task) return res.status(404).json({ message: 'Task not found' });
-			const user = await User.findOne({
-				where: { id: req.user.id, deleted_at: null },
-			});
-			if (!user) return res.status(404).json({ message: 'User not found' });
-			if (task.team_id && user.team_id !== task.team_id) {
-				return res
-					.status(403)
-					.json({ message: 'Task is not assigned to your team' });
-			}
-
-			const assignment = await TaskAssignment.findOne({
-				where: { task_id: task.id, user_id: req.user.id },
-			});
-			if (!assignment)
-				return res.status(404).json({ message: 'Task not claimed' });
-			if (assignment.status === 'completed')
-				return res.status(400).json({ message: 'Task already completed' });
-
-			await assignment.update({
-				status: 'completed',
-				completed_at: new Date(),
-			});
-			return res.json(assignment);
-		} catch (err) {
-			console.error(err);
-			return res.status(500).json({ message: 'Complete task failed' });
-		}
-	}
-);
-
-router.post(
-	'/admin/tasks/:taskId/assign',
-	authenticate,
-	requireWorkspaceRole(['owner', 'admin']),
-	async (req, res) => {
-		const { taskId } = req.params;
-		const { userId } = req.body;
-		if (!userId) return res.status(400).json({ message: 'User required' });
-		try {
-			const task = await Task.findOne({
-				where: { id: taskId, workspace_id: req.workspaceId, deleted_at: null },
-			});
-			if (!task) return res.status(404).json({ message: 'Task not found' });
-			const user = await User.findOne({
-				where: { id: userId, deleted_at: null },
-			});
-			if (!user) return res.status(404).json({ message: 'User not found' });
-			const membership = await WorkspaceUser.findOne({
-				where: { workspace_id: req.workspaceId, user_id: userId },
-			});
-			if (!membership)
-				return res
-					.status(403)
-					.json({ message: 'User is not a member of this workspace' });
-			if (task.team_id && user.team_id !== task.team_id) {
-				return res
-					.status(403)
-					.json({ message: 'User is not in the task team' });
-			}
-			const assignment = await TaskAssignment.create({
-				task_id: task.id,
-				user_id: user.id,
-				status: 'assigned',
-			});
-			return res.status(201).json(assignment);
-		} catch (err) {
-			if (err.name === 'SequelizeUniqueConstraintError') {
-				return res
-					.status(409)
-					.json({ message: 'Task already assigned to user' });
-			}
-			console.error(err);
-			return res.status(500).json({ message: 'Assign task failed' });
-		}
-	}
-);
-
-router.get('/tasks', authenticate, requireWorkspaceMember, async (req, res) => {
+router.get('/tasks/my', authenticate, async (req, res) => {
 	try {
-		const where = { workspace_id: req.workspaceId, deleted_at: null };
-		if (req.query.team_id) where.team_id = req.query.team_id;
-		const tasks = await Task.findAll({ where });
+		const memberships = await TeamMember.findAll({
+			where: { user_id: req.user.id },
+			attributes: ['team_id'],
+			include: [{ model: Team, attributes: ['workspace_id'] }],
+		});
+		const teamIds = memberships.map(m => m.team_id);
+		if (teamIds.length === 0) return res.json([]);
+
+		const where = { team_id: teamIds };
+		if (req.query.status && ALLOWED_STATUS.includes(req.query.status)) {
+			where.status = req.query.status;
+		}
+
+		const tasks = await Task.findAll({ where, order: [['createdAt', 'ASC']] });
 		return res.json(tasks);
 	} catch (err) {
-		console.error(err);
+		console.error('Fetch tasks failed', err);
 		return res.status(500).json({ message: 'Fetch tasks failed' });
+	}
+});
+
+router.get('/teams/my', authenticate, async (req, res) => {
+	try {
+		const memberships = await TeamMember.findAll({
+			where: { user_id: req.user.id },
+			include: [{ model: Team, attributes: ['id', 'name', 'workspace_id'] }],
+		});
+		const teams = memberships
+			.map(m => m.Team)
+			.filter(Boolean)
+			.map(t => ({ id: t.id, name: t.name, workspace_id: t.workspace_id }));
+		return res.json(teams);
+	} catch (err) {
+		console.error('Fetch user teams failed', err);
+		return res.status(500).json({ message: 'Fetch teams failed' });
+	}
+});
+
+router.post('/tasks', authenticate, async (req, res) => {
+	const {
+		team_id,
+		task_name,
+		task_desc = null,
+		status = 'open',
+		difficulty = 'easy',
+	} = req.body;
+
+	if (!team_id || !task_name) {
+		return res
+			.status(400)
+			.json({ message: 'team_id and task_name are required' });
+	}
+	if (!ALLOWED_STATUS.includes(status)) {
+		return res.status(400).json({ message: 'Invalid status' });
+	}
+	if (!ALLOWED_DIFFICULTY.includes(difficulty)) {
+		return res.status(400).json({ message: 'Invalid difficulty' });
+	}
+
+	try {
+		const team = await Team.findByPk(team_id);
+		if (!team) return res.status(404).json({ message: 'Team not found' });
+
+		const isMember = await ensureTeamMember(req.user.id, team_id);
+		if (!isMember)
+			return res
+				.status(403)
+				.json({ message: 'Not authorized for this team' });
+
+		const task = await Task.create({
+			team_id,
+			task_name,
+			task_desc,
+			status,
+			difficulty,
+			task_xp: XP_BY_DIFFICULTY[difficulty],
+			created_by_user_id: req.user.id,
+		});
+
+		return res.status(201).json(task);
+	} catch (err) {
+		console.error('Create task failed', err);
+		return res.status(500).json({ message: 'Create task failed' });
+	}
+});
+
+router.patch('/tasks/:taskId/status', authenticate, async (req, res) => {
+	const { taskId } = req.params;
+	const { status } = req.body;
+	if (!ALLOWED_STATUS.includes(status)) {
+		return res.status(400).json({ message: 'Please choose a valid status.' });
+	}
+
+	try {
+		const task = await Task.findByPk(taskId);
+		if (!task) return res.status(404).json({ message: 'Task could not be found.' });
+
+		const membership = await ensureTeamMember(req.user.id, task.team_id);
+		if (!membership)
+			return res
+				.status(403)
+				.json({ message: 'You are not allowed to update this task.' });
+
+		const prevStatus = task.status;
+		const updateData = { status };
+		if (status === 'inprogress') {
+			updateData.assigned_to_user_id = req.user.id;
+			updateData.assigned_to_username = req.user.username;
+			updateData.completed_by_user_id = null;
+			updateData.completed_by_username = null;
+		}
+		if (status === 'complete') {
+			if (!task.assigned_to_user_id) {
+				updateData.assigned_to_user_id = req.user.id;
+				updateData.assigned_to_username = req.user.username;
+			}
+			updateData.completed_by_user_id = req.user.id;
+			updateData.completed_by_username = req.user.username;
+		}
+
+		await task.update(updateData);
+		await task.reload();
+
+		let updatedUser = null;
+		if (prevStatus !== 'complete' && status === 'complete') {
+			updatedUser = await applyXpAndCompletion(
+				req.user.id,
+				task.task_xp || XP_BY_DIFFICULTY[task.difficulty] || 0
+			);
+		}
+
+		return res.json({ task, user: updatedUser });
+	} catch (err) {
+		console.error('Update task status failed', err);
+		return res.status(500).json({ message: 'We could not update the task right now.' });
+	}
+});
+
+router.delete('/tasks/:taskId', authenticate, async (req, res) => {
+	const { taskId } = req.params;
+	try {
+		const task = await Task.findByPk(taskId);
+		if (!task) return res.status(404).json({ message: 'Task not found' });
+
+		const membership = await ensureTeamMember(req.user.id, task.team_id);
+		if (!membership)
+			return res
+				.status(403)
+				.json({ message: 'Not authorized for this team' });
+
+		await task.destroy();
+		return res.json({ message: 'Task deleted' });
+	} catch (err) {
+		console.error('Delete task failed', err);
+		return res.status(500).json({ message: 'Delete task failed' });
 	}
 });
 
