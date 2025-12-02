@@ -7,16 +7,34 @@ export default (sequelize, DataTypes) => {
 				primaryKey: true,
 				autoIncrement: true,
 			},
-			team_id: {
+			task_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
-				allowNull: false,
+				allowNull: true,
 				references: {
-					model: 'Teams',
+					model: 'Tasks',
 					key: 'id',
 				},
 				onDelete: 'CASCADE',
 			},
-			created_by_user_id: {
+			team_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: true,
+				references: {
+					model: 'Teams',
+					key: 'id',
+				},
+				onDelete: 'SET NULL',
+			},
+			workspace_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: true,
+				references: {
+					model: 'Workspaces',
+					key: 'id',
+				},
+				onDelete: 'SET NULL',
+			},
+			sender_user_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				references: {
@@ -25,6 +43,15 @@ export default (sequelize, DataTypes) => {
 				},
 				onDelete: 'RESTRICT',
 			},
+			recipient_user_id: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: true,
+				references: {
+					model: 'Users',
+					key: 'id',
+				},
+				onDelete: 'CASCADE',
+			},
 			content: {
 				type: DataTypes.TEXT,
 				allowNull: false,
@@ -32,8 +59,14 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'Messages',
-			timestamps: true, // adds createdAt / updatedAt
+			timestamps: true,
 			underscored: true,
+			indexes: [
+				{ fields: ['task_id'] },
+				{ fields: ['team_id'] },
+				{ fields: ['workspace_id'] },
+				{ fields: ['sender_user_id', 'recipient_user_id'] },
+			],
 		}
 	);
 };

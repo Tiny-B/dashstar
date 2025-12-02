@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import ChatWidget from "../components/ChatWidget";
 import "./CSS/profile.css";
 
 function Profile() {
@@ -90,7 +91,6 @@ function Profile() {
 
   return (
     <div className="profile-container">
-
       <div className="profile-header">
         <div className="profile-header-left">
           <div className="profile-avatar">
@@ -235,6 +235,7 @@ function Profile() {
         <p>Manager:</p>
         <p>Team Members:</p>
       </div>
+      <ChatWidget />
     </div>
   );
 }

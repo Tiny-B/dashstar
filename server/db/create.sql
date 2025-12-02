@@ -111,14 +111,64 @@ CREATE TABLE Schedules (
 
 CREATE TABLE Messages (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    team_id INT UNSIGNED NOT NULL,
-    created_by_user_id INT UNSIGNED NOT NULL,
+    task_id INT UNSIGNED NULL,
+    team_id INT UNSIGNED NULL,
+    workspace_id INT UNSIGNED NULL,
+    sender_user_id INT UNSIGNED NOT NULL,
+    recipient_user_id INT UNSIGNED NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_message_task FOREIGN KEY (task_id)
+        REFERENCES Tasks(id) ON DELETE CASCADE,
     CONSTRAINT fk_message_team FOREIGN KEY (team_id)
-        REFERENCES Teams(id) ON DELETE CASCADE,
-    CONSTRAINT fk_message_creator FOREIGN KEY (created_by_user_id)
-        REFERENCES Users(id) ON DELETE RESTRICT
+        REFERENCES Teams(id) ON DELETE SET NULL,
+    CONSTRAINT fk_message_workspace FOREIGN KEY (workspace_id)
+        REFERENCES Workspaces(id) ON DELETE SET NULL,
+    CONSTRAINT fk_message_sender FOREIGN KEY (sender_user_id)
+        REFERENCES Users(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_message_recipient FOREIGN KEY (recipient_user_id)
+        REFERENCES Users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE TaskCollaborators (
+    task_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    invited_by_user_id INT UNSIGNED NULL,
+    status ENUM('invited','accepted','declined') NOT NULL DEFAULT 'accepted',
+    role ENUM('participant','admin') NOT NULL DEFAULT 'participant',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (task_id, user_id),
+    CONSTRAINT fk_tc_task FOREIGN KEY (task_id) REFERENCES Tasks(id) ON DELETE CASCADE,
+    CONSTRAINT fk_tc_user FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_tc_inviter FOREIGN KEY (invited_by_user_id) REFERENCES Users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE Achievements (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE UserAchievements (
+    user_id INT UNSIGNED NOT NULL,
+    achievement_id INT UNSIGNED NOT NULL,
+    awarded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, achievement_id),
+    CONSTRAINT fk_ua_user FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_ua_achievement FOREIGN KEY (achievement_id) REFERENCES Achievements(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE UserBlocks (
+    user_id INT UNSIGNED NOT NULL,
+    blocked_user_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, blocked_user_id),
+    CONSTRAINT fk_block_user FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_block_blocked FOREIGN KEY (blocked_user_id) REFERENCES Users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
