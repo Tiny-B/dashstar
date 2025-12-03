@@ -195,7 +195,7 @@ body {
  color: #8bf5d8;
 }
 
-/* ============= ACHIEVEMENTS ============= */
+/* ACHIEVEMENTS */
 
 .progress-bar {
   background: rgba(255, 255, 255, 0.18);
@@ -214,7 +214,7 @@ body {
 }
 
 
-/* ============= RESPONSIVE ============= */
+/* RESPONSIVE */
 
 @media (max-width: 900px) {
   .profile-form {
@@ -225,9 +225,6 @@ body {
     grid-column: span 1;
   }
 }
-
-
-
 
 
 /* Fade-in animation */

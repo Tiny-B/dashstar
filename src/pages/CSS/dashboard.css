@@ -182,11 +182,6 @@
 }
 
 
-
-/* ============================================
-   MATCH PROFILE PAGE COLORS — SAFE VERSION
-   ============================================ */
-
 body {
   background: linear-gradient(180deg, #0b0012, #1a0326) !important;
 }
@@ -241,19 +236,14 @@ body {
 }
 
 
-
-/* ============================================
-   ⭐ MATCH SAVE-PROFILE BUTTON COLORS
-   ============================================ */
-
 .task-card button,
 .assign-btn {
   background: linear-gradient(90deg, #7a2cff, #b38bff) !important;
   color: white !important;
   border: none !important;
-  padding: 10px 20px !important; /* more breathing room */
-  min-width: 90px !important;    /* ensures text fits */
-  height: auto !important;       /* removes forced height */
+  padding: 10px 20px !important; 
+  min-width: 90px !important;    
+  height: auto !important;     
   
   border-radius: 8px;
   font-weight: 600;
