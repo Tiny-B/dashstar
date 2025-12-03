@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
-	const UserWorkspace = sequelize.define(
-		'UserWorkspace',
+	const UserBlock = sequelize.define(
+		'UserBlock',
 		{
 			user_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -9,26 +9,26 @@ export default (sequelize, DataTypes) => {
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},
-			workspace_id: {
+			blocked_user_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
-				references: { model: 'Workspaces', key: 'id' },
+				references: { model: 'Users', key: 'id' },
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},
-			role: {
-				type: DataTypes.ENUM('admin', 'member'), 
+			created_at: {
+				type: DataTypes.DATE,
 				allowNull: false,
-				defaultValue: 'member',
+				defaultValue: DataTypes.NOW,
 			},
 		},
 		{
-			tableName: 'UserWorkspace',
+			tableName: 'UserBlocks',
 			timestamps: false,
 			underscored: true,
 			id: false,
 		}
 	);
-	UserWorkspace.removeAttribute('id');
-	return UserWorkspace;
+	UserBlock.removeAttribute('id');
+	return UserBlock;
 };

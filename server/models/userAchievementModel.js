@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
-	const UserWorkspace = sequelize.define(
-		'UserWorkspace',
+	const UserAchievement = sequelize.define(
+		'UserAchievement',
 		{
 			user_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -9,26 +9,26 @@ export default (sequelize, DataTypes) => {
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},
-			workspace_id: {
+			achievement_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
-				references: { model: 'Workspaces', key: 'id' },
+				references: { model: 'Achievements', key: 'id' },
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},
-			role: {
-				type: DataTypes.ENUM('admin', 'member'), 
+			awarded_at: {
+				type: DataTypes.DATE,
 				allowNull: false,
-				defaultValue: 'member',
+				defaultValue: DataTypes.NOW,
 			},
 		},
 		{
-			tableName: 'UserWorkspace',
+			tableName: 'UserAchievements',
 			timestamps: false,
 			underscored: true,
 			id: false,
 		}
 	);
-	UserWorkspace.removeAttribute('id');
-	return UserWorkspace;
+	UserAchievement.removeAttribute('id');
+	return UserAchievement;
 };

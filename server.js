@@ -2,6 +2,8 @@ import RegisterLoginRoute from './server/routes/RegisterLoginRoutes.js';
 import TasksRoute from './server/routes/tasksRoutes.js';
 import WorkspacesRoute from './server/routes/workspacesRoutes.js';
 import UsersRoute from './server/routes/usersRoutes.js';
+import MessagesRoute from './server/routes/messagesRoutes.js';
+import AchievementsRoute from './server/routes/achievementsRoutes.js';
 import express from 'express';
 import sequelize from './server/config/db.js';
 import cookieParser from 'cookie-parser';
@@ -46,6 +48,8 @@ app.use('/api', RegisterLoginRoute);
 app.use('/api', TasksRoute);
 app.use('/api', WorkspacesRoute);
 app.use('/api', UsersRoute);
+app.use('/api', MessagesRoute);
+app.use('/api', AchievementsRoute);
 
 app.use((err, req, res, next) => {
 	console.error('error:', err);

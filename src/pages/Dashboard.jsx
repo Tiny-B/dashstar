@@ -4,8 +4,9 @@ import TaskCard from "../components/TaskCard";
 import TaskList from "../components/TaskList";
 import TeamIconButton from "../components/TeamIconButton";
 import TaskCreateModal from "../components/TaskCreateModal";
+import ChatWidget from "../components/ChatWidget";
 import "./CSS/dashboard.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import avatarDefault from "../assets/avatardefault.svg";
 import burgerMenuIcon from "../assets/BurgerMenuIcon.png";
@@ -14,6 +15,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function Dashboard() {
   const { user, logout, login } = useAuth();
+  const navigate = useNavigate();
   const [level, setLevel] = useState(0);
   const [totalXp, setTotalXp] = useState(0);
   const [nextXp, setNextXp] = useState(0);
@@ -41,6 +43,8 @@ export default function Dashboard() {
   const xpRequiredForLevel = (lvl) => 100 + (Math.max(lvl, 1) - 1) * 50;
   const [navOpen, setNavOpen] = useState(false);
   const [showWorkspacePicker, setShowWorkspacePicker] = useState(false);
+  const currentWorkspace = workspaces.find((w) => w.id === selectedWorkspaceId);
+  const canManageTasks = currentWorkspace?.role === "admin";
 
   useEffect(() => {
     setLevel(user.level);
@@ -140,6 +144,7 @@ export default function Dashboard() {
   };
 
   const createNewTask = async () => {
+    if (!canManageTasks) return;
     setShowTaskModal(true);
   };
 
@@ -588,7 +593,7 @@ export default function Dashboard() {
         </div>
 
         <div className="task-view-container dash-border dash-shadow">
-          <CreateTaskList title="Tasks" list={taskList} showCreateBtn={true} />
+          <CreateTaskList title="Tasks" list={taskList} showCreateBtn={!!canManageTasks} />
           <CreateTaskList title="In-progress" list={inprogressList} />
           <CreateTaskList title="Complete" list={completeList} />
         </div>
@@ -730,6 +735,8 @@ export default function Dashboard() {
           </div>
         </>
       )}
+
+      <ChatWidget />
     </div>
   );
 }
