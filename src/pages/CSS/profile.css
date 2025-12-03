@@ -1,295 +1,250 @@
 .profile-container {
-    max-width: 1200px;
-    margin: 32px auto;
-    padding: 0 24px 32px;
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas:
-      "header header"
-      "title title"
-      "personal achievements"
-      "personal team";
-    gap: 20px;
-  }
-  
-  /* ===== HEADER ===== */
-  
-  .profile-header {
-    grid-area: header;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .profile-header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  
-  .profile-avatar {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: #111827;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 22px;
-  }
-  
-  .profile-header-text h2 {
-    margin: 0;
-    font-size: 22px;
-    color: #fcfcfe;
-  }
-  
-  .profile-header-text p {
-    margin: 2px 0 8px;
-    font-size: 14px;
-    color: #6b7280;
-  }
-  
-  .profile-header-levels {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .profile-pill {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    background: #e5e7eb;
-    color: #111827;
-  }
-  
-  .profile-header-right {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .header-btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  /* ===== PAGE TITLE ("User Profile") ===== */
-  
-  .profile-container > h1 {
-    grid-area: title;
-    margin: 0 0 12px 0;
-    font-size: 26px;
-    color: #111827;
-  }
-  
-  /* ===== CARD STYLING ===== */
-  
-  .profile-section {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    padding: 18px 20px 22px;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-  }
-  
-  /* Position the three cards using explicit classes */
-  
-  /* 1) Personal Details – tall left column spanning both rows */
-  .profile-section.profile-personal {
-    grid-area: personal;
-    min-height: 380px; /* make it nice and tall so all fields align */
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* 2) Achievements – top-right */
-  .profile-section.profile-achievements {
-    grid-area: achievements;
-    height: 200px; 
-  }
-  
-  /* 3) Team Details – bottom-right */
-  .profile-section.profile-team {
-    grid-area: team;
-    min-height: 180px;
-  }
-  
-  /* Section titles */
-  .profile-section > h2 {
-    margin: 0 0 16px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-  }
-  
-  /* ===== PERSONAL DETAILS FORM ===== */
-  
-  /* 2-column layout with grid areas */
-  .profile-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 24px;
-    row-gap: 4px;
-    grid-template-areas:
-      "label-full   label-username"
-      "input-full   input-username"
-      "label-email  label-phone"
-      "input-email  input-phone"
-      "label-country label-city"
-      "input-country input-city"
-      "label-timezone label-theme"
-      "input-timezone input-theme"
-      "button button";
-    flex-grow: 1; /* stretch inside the card */
-  }
-  
-  /* Basic label/input styling */
-  .profile-form label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #4b5563;
-  }
-  
-  .profile-form input {
-    padding: 8px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #ffffff;
-  }
-  
-  /* --- Place each field in the grid --- */
-  
-  /* Full Name */
-  .profile-form label:nth-of-type(1) { grid-area: label-full; }
-  .profile-form input:nth-of-type(1) { grid-area: input-full; }
-  
-  /* Username */
-  .profile-form label:nth-of-type(2) { grid-area: label-username; }
-  .profile-form input:nth-of-type(2) { grid-area: input-username; }
-  
-  /* Email */
-  .profile-form label:nth-of-type(3) { grid-area: label-email; }
-  .profile-form input:nth-of-type(3) { grid-area: input-email; }
-  
-  /* Phone */
-  .profile-form label:nth-of-type(4) { grid-area: label-phone; }
-  .profile-form input:nth-of-type(4) { grid-area: input-phone; }
-  
-  /* Country */
-  .profile-form label:nth-of-type(5) { grid-area: label-country; }
-  .profile-form input:nth-of-type(5) { grid-area: input-country; }
-  
-  /* City */
-  .profile-form label:nth-of-type(6) { grid-area: label-city; }
-  .profile-form input:nth-of-type(6) { grid-area: input-city; }
-  
-  /* Timezone */
-  .profile-form label:nth-of-type(7) { grid-area: label-timezone; }
-  .profile-form input:nth-of-type(7) { grid-area: input-timezone; }
-  
-  /* Theme */
-  .profile-form label:nth-of-type(8) { grid-area: label-theme; }
-  .profile-form input:nth-of-type(8) { grid-area: input-theme; }
-  
-  /* Save button at bottom right */
-.save-btn {
-  grid-area: button;
-  justify-self: end;
-  margin-top: 16px;
-  padding: 9px 18px;
-  background: #111827;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  color: #e8d7ff;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Background */
+body {
+  background: linear-gradient(180deg, #0b0012, #1a0326);
+  min-height: 100vh;
+}
+
+/* HEADER */
+
+.profile-header {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  animation: fadeIn 0.5s ease forwards;
+  opacity: 0;
+}
+
+.profile-header:hover {
+  box-shadow: 0 0 18px #b46aff66;
+}
+
+
+.profile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.profile-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2c003f, #140020);
+  color: #e6c7ff;
+  font-weight: 700;
+  font-size: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+
+  animation: pulseGlow 3s infinite;
+}
+
+
+.profile-header-text h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #f5eaff;
+}
+
+.profile-header-text p {
+  margin: 4px 0;
   font-size: 14px;
+  opacity: 0.8;
+}
+
+.profile-header-levels {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-pill {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Save Profile button */
+.header-btn {
+  background: linear-gradient(90deg, #7a2cff, #b38bff);
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.header-btn:hover {
+  background: linear-gradient(90deg, #6e24e6, #a474ff);
+}
+
+/* CARD BASE STYLE  */
+
+.profile-section {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 22px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(20, 0, 30, 0.4);
+
+  animation: fadeIn 0.6s ease forwards;
+  opacity: 0; /* start hidden until animation triggers */
+}
+
+.profile-section:hover {
+  box-shadow: 0 0 20px #b46aff55;
+  transition: 0.3s ease;
+}
+
+
+.profile-section h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f2dfff;
+}
+
+/* PERSONAL DETAILS FORM */
+
+.profile-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 22px;
+}
+
+.profile-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d4baff;
+}
+
+.profile-form input,
+.profile-form select {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #f3eaff;
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+}
+
+.profile-form select option {
+  background: #f4eaff; 
+  color: #2a003b;
+  padding: 8px;
+}
+
+.profile-form input:hover,
+.profile-form select:hover {
+  border-color: #c38aff;
+  box-shadow: 0 0 10px #c38aff55;
+}
+
+.profile-form input:focus,
+.profile-form select:focus {
+  border-color: #dca6ff;
+  box-shadow: 0 0 12px #dca6ff99;
+  outline: none;
+}
+
+
+.save-btn {
+  grid-column: span 2;
+  padding: 12px;
+  margin-top: 8px;
+  background: linear-gradient(90deg, #7a2cff, #b38bff);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  background: linear-gradient(90deg, #6e24e6, #a474ff);
 }
 
 .status-msg {
-  grid-area: button;
-  justify-self: start;
-  margin-top: 8px;
-  font-size: 13px;
-  color: #0f766e;
+ margin-top: 8px;
+ font-size: 14px;
+ color: #8bf5d8;
 }
-  
-  /* ===== ACHIEVEMENTS CARD ===== */
-  
-  .profile-section.profile-achievements p {
-    margin: 4px 0;
-    font-size: 14px;
-  }
-  
-  /* Progress bar like the mockup */
-  .progress-bar {
-    width: 100%;
-    height: 8px;
-    background: #e5e7eb;
-    margin-top: 10px;
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  
+
+/* ============= ACHIEVEMENTS ============= */
+
+.progress-bar {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  height: 10px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
 .progress-fill {
-    height: 100%;
-    background: #4b5563;
-    border-radius: 999px;
-    transition: width 0.3s ease;
+  height: 100%;
+  background: linear-gradient(90deg, #b682ff, #d29bff);
+  border-radius: 999px;
+  animation: pulseGlow 2.5s infinite;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-  
-  /* ===== TEAM DETAILS CARD ===== */
-  
-  .profile-section.profile-team p {
-    margin: 4px 0;
-    font-size: 14px;
+
+
+/* ============= RESPONSIVE ============= */
+
+@media (max-width: 900px) {
+  .profile-form {
+    grid-template-columns: 1fr;
   }
   
-  /* ===== RESPONSIVE: stack on small screens ===== */
-  
-  @media (max-width: 900px) {
-    .profile-container {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "header"
-        "title"
-        "personal"
-        "achievements"
-        "team";
-    }
-  
-    .profile-form {
-      grid-template-columns: 1fr;           /* stack fields on small screens */
-      grid-template-areas:
-        "label-full"
-        "input-full"
-        "label-username"
-        "input-username"
-        "label-email"
-        "input-email"
-        "label-phone"
-        "input-phone"
-        "label-country"
-        "input-country"
-        "label-city"
-        "input-city"
-        "label-timezone"
-        "input-timezone"
-        "label-theme"
-        "input-theme"
-        "button";
-    }
-  
-    .save-btn {
-      justify-self: stretch;
-    }
+  .save-btn {
+    grid-column: span 1;
   }
-  
+}
+
+
+
+
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Soft glow on hover */
+.glow-hover:hover {
+  box-shadow: 0 0 15px #b46aff99;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Pulse animation (used for XP bar) */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px #b874ff44; }
+  50% { box-shadow: 0 0 20px #b874ffaa; }
+  100% { box-shadow: 0 0 10px #b874ff44; }
+}

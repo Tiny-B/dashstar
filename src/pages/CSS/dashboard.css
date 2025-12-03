@@ -156,10 +156,10 @@
 }
 
 .task-list {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	border-radius: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 20px;
 }
 
 .task-view-container {
@@ -179,4 +179,93 @@
   height: 800px;
   width: 350px;
   border-radius: 20px;
+}
+
+
+
+/* ============================================
+   MATCH PROFILE PAGE COLORS — SAFE VERSION
+   ============================================ */
+
+body {
+  background: linear-gradient(180deg, #0b0012, #1a0326) !important;
+}
+
+.profile-widget,
+.level-widget,
+.task-view-container,
+.dash-buttons {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 10px 30px rgba(20, 0, 30, 0.4) !important;
+}
+
+.profile-widget:hover,
+.level-widget:hover,
+.task-view-container:hover,
+.dash-buttons:hover {
+  box-shadow: 0 0 20px #b46aff66 !important;
+}
+
+.dashboard p,
+.dashboard h2,
+.dashboard h3,
+.dashboard span {
+  color: #e8d7ff !important;
+}
+
+.dash-button:hover,
+.team-buttons-alignment button:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 0 15px #b46aff88 !important;
+}
+
+.level-widget > div > div {
+  background: linear-gradient(90deg, #b682ff, #d29bff) !important;
+}
+
+.profile-pic {
+  background: linear-gradient(145deg, #2c003f, #140020) !important;
+  border: 2px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.dash-buttons {
+  position: relative;
+  z-index: 2000;
+}
+
+.team-buttons-alignment {
+  position: relative;
+  z-index: 3000;
+}
+
+
+
+/* ============================================
+   ⭐ MATCH SAVE-PROFILE BUTTON COLORS
+   ============================================ */
+
+.task-card button,
+.assign-btn {
+  background: linear-gradient(90deg, #7a2cff, #b38bff) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important; /* more breathing room */
+  min-width: 90px !important;    /* ensures text fits */
+  height: auto !important;       /* removes forced height */
+  
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  display: flex !important; 
+  justify-content: center !important;
+  align-items: center !important;
+
+  transition: 0.2s ease;
+}
+
+.task-card button:hover,
+.assign-btn:hover {
+  background: linear-gradient(90deg, #6e24e6, #a474ff) !important;
 }
