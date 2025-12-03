@@ -45,7 +45,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'Schedules',
-			timestamps: true,
+			timestamps: false,
 			underscored: true,
 		}
 	);

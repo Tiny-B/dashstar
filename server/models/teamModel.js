@@ -32,7 +32,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'Teams',
-			timestamps: true,
+			timestamps: false,
 			underscored: true,
 			indexes: [
 				{

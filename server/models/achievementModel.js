@@ -23,7 +23,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'Achievements',
-			timestamps: true,
+			timestamps: false,
 			underscored: true,
 		}
 	);

@@ -59,7 +59,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'Messages',
-			timestamps: true,
+			timestamps: false,
 			underscored: true,
 			indexes: [
 				{ fields: ['task_id'] },
