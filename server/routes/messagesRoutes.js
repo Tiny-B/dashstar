@@ -62,7 +62,7 @@ router.get('/messages/users/:userId', authenticate, async (req, res) => {
 					{ sender_user_id: otherUserId, recipient_user_id: req.user.id },
 				],
 			},
-			order: [['createdAt', 'ASC']],
+			order: [['id', 'ASC']],
 		});
 		return res.json(messages);
 	} catch (err) {
@@ -81,7 +81,7 @@ router.get('/messages/recent', authenticate, async (req, res) => {
 					{ recipient_user_id: req.user.id },
 				],
 			},
-			order: [['createdAt', 'DESC']],
+			order: [['id', 'DESC']],
 			limit: 100,
 		});
 
@@ -110,12 +110,7 @@ router.get('/messages/recent', authenticate, async (req, res) => {
 				email: u.email,
 				avatar_url: u.avatar_url,
 				lastMessage: m?.content,
-				lastTime: m
-					? new Date(m.createdAt || m.created_at).toLocaleTimeString([], {
-							hour: '2-digit',
-							minute: '2-digit',
-					  })
-					: null,
+				lastTime: null,
 			};
 		});
 
@@ -156,7 +151,7 @@ router.get('/messages/tasks/:taskId', authenticate, async (req, res) => {
 		if (!allowed) return res.status(403).json({ message: 'Not authorized for this task' });
 		const messages = await Message.findAll({
 			where: { task_id: taskId },
-			order: [['createdAt', 'ASC']],
+			order: [['id', 'ASC']],
 		});
 		return res.json(messages);
 	} catch (err) {

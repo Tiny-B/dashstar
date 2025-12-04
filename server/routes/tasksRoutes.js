@@ -174,7 +174,7 @@ router.get('/tasks/my', authenticate, async (req, res) => {
 			where.status = req.query.status;
 		}
 
-		const tasks = await Task.findAll({ where, order: [['createdAt', 'ASC']] });
+		const tasks = await Task.findAll({ where, order: [['id', 'ASC']] });
 		return res.json(tasks);
 	} catch (err) {
 		console.error('Fetch tasks failed', err);
@@ -217,7 +217,7 @@ router.get('/tasks/:taskId/collaborators', authenticate, async (req, res) => {
 		const collaborators = await TaskCollaborator.findAll({
 			where: { task_id: taskId },
 			include: [{ model: User, as: 'collaborator', attributes: ['id', 'username', 'email', 'avatar_url'] }],
-			order: [['createdAt', 'ASC']],
+			order: [['user_id', 'ASC']],
 		});
 		return res.json(
 			collaborators.map(c => ({

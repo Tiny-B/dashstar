@@ -35,7 +35,7 @@ export default (sequelize, DataTypes) => {
 		},
 		{
 			tableName: 'TaskCollaborators',
-			timestamps: true,
+			timestamps: false,
 			underscored: false,
 			id: false,
 		}

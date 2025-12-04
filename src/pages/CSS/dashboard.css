@@ -40,32 +40,37 @@
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #1f0c1a;
-  border-right: 2px solid #4c0039;
-  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(140deg, rgba(47, 10, 36, 0.95), rgba(15, 4, 24, 0.9));
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 12px 0 30px rgba(180, 106, 255, 0.25);
+  backdrop-filter: blur(18px);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  z-index: 50;
+  z-index: 5000;
 }
 .nav-drawer a {
   color: #fff;
   text-decoration: none;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #4c0039;
-  transition: background 0.2s ease, transform 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .nav-drawer a:hover {
-  background: #2a0f24;
-  transform: translateX(2px);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+  box-shadow: 0 0 18px rgba(180, 106, 255, 0.35);
 }
 .nav-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 40;
+  z-index: 4000;
 }
 
 .widgets {
