@@ -7,19 +7,24 @@ import AchievementsRoute from './server/routes/achievementsRoutes.js';
 import express from 'express';
 import sequelize from './server/config/db.js';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins =
-	process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [
-		'http://localhost:5173',
-		'http://127.0.0.1:5173',
-		'http://localhost:4000',
-		'http://127.0.0.1:4000',
-	];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [
+	'http://localhost:5173',
+	'http://127.0.0.1:5173',
+	'http://localhost:4000',
+	'http://127.0.0.1:4000',
+	'http://localhost:3002',
+	'http://127.0.0.1:3002',
+];
 
 app.use((req, res, next) => {
 	const origin = req.headers.origin;
@@ -27,14 +32,8 @@ app.use((req, res, next) => {
 		res.header('Access-Control-Allow-Origin', origin || '*');
 	}
 	res.header('Access-Control-Allow-Credentials', 'true');
-	res.header(
-		'Access-Control-Allow-Headers',
-		'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-	);
-	res.header(
-		'Access-Control-Allow-Methods',
-		'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD'
-	);
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+	res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD');
 	res.header('Access-Control-Expose-Headers', 'Set-Cookie');
 	if (req.method === 'OPTIONS') {
 		return res.sendStatus(204);
@@ -50,6 +49,8 @@ app.use('/api', WorkspacesRoute);
 app.use('/api', UsersRoute);
 app.use('/api', MessagesRoute);
 app.use('/api', AchievementsRoute);
+
+app.use(express.static(path.join(__dirname, './dist')));
 
 app.use((err, req, res, next) => {
 	console.error('error:', err);

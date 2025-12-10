@@ -40,7 +40,6 @@ export default function LoginRegister() {
 
 	const handleOnChange = e => {
 		const { name, value } = e.target;
-		console.log('e.target:', e.target.value);
 
 		if (state?.fromLandingBtn === 'login') {
 			setFormDataLogin({
@@ -50,7 +49,6 @@ export default function LoginRegister() {
 		} else {
 			if (e.target.name === 'passwordMatch') {
 				setPasswordMatch(e.target.value);
-				console.log(e.target.value);
 			}
 
 			if (name !== 'role') {

@@ -108,9 +108,9 @@ CREATE TABLE Messages (
     CONSTRAINT fk_message_task FOREIGN KEY (task_id)
         REFERENCES Tasks(id) ON DELETE CASCADE,
     CONSTRAINT fk_message_team FOREIGN KEY (team_id)
-        REFERENCES Teams(id) ON DELETE SET NULL,
+        REFERENCES Teams(id),
     CONSTRAINT fk_message_workspace FOREIGN KEY (workspace_id)
-        REFERENCES Workspaces(id) ON DELETE SET NULL,
+        REFERENCES Workspaces(id),
     CONSTRAINT fk_message_sender FOREIGN KEY (sender_user_id)
         REFERENCES Users(id) ON DELETE RESTRICT,
     CONSTRAINT fk_message_recipient FOREIGN KEY (recipient_user_id)

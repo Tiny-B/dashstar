@@ -5,12 +5,13 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"start": "nodemon ./server.js",
+		"start": "node ./server.js",
 		"dev": "vite",
 		"build": "vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"createDB": "node server/scripts/createDB.cjs"
+		"createDB": "node server/scripts/createDB.cjs",
+		"serve:prod": "npm run build && npm run start"
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.17",
